@@ -65,14 +65,15 @@ token（建议）
 
 **首页展示**
 <img src=".\images\home.png"/>
+
 **支付选择**
 <img src=".\images\recharge.png"/>
 
 **支付提示**
-![支付选择](.\images\payment-help.png)
+<img src=".\images\payment-help.png"/>
 
 **支付页面**
-![支付选择](.\images\payment.png)
+<img src=".\images\payment.png"/>
 
 **支付审核邮件通知内容**
-![支付选择](.\images\payment-review.png)
+<img src=".\images\payment-review.png"/>
