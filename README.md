@@ -64,16 +64,15 @@ token（建议）
 效果展示：
 
 **首页展示**
-![首页展示](.\images\home.png)
-
+<img src=".\images\home.png"/>
 **支付选择**
-![支付选择](.\images\recharge.png)
+<img src=".\images\recharge.png"/>
 
 **支付提示**
-![支付提示](.\images\payment-help.png)
+![支付选择](.\images\payment-help.png)
 
 **支付页面**
-![支付页面](.\images\payment.png)
+![支付选择](.\images\payment.png)
 
 **支付审核邮件通知内容**
-![支付审核](.\images\payment-review.png)
+![支付选择](.\images\payment-review.png)
