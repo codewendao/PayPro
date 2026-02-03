@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付审核通知 - 管理后台</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --secondary: #64748b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        /* 顶部标题区 */
+        .admin-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 30px 40px;
+            color: white;
+            position: relative;
+        }
+
+        .admin-header h1 { font-size: 24px; margin-bottom: 8px; }
+        .admin-header p { font-size: 14px; opacity: 0.9; }
+
+        .badge-system {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* 内容详情区 */
+        .admin-content { padding: 30px 40px; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-item.full-width { grid-column: span 2; }
+
+        .label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .value.highlight {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* 按钮操作区 */
+        .action-group {
+            margin-top: 30px;
+        }
+
+        .footer-notice {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .info-item.full-width { grid-column: span 1; }
+            .admin-header, .admin-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>支付审核通知</h1>
+        <p th:text="'待处理订单: ' + ${title}">订单编号渲染中...</p>
+        <div class="badge-system">个人支付系统</div>
+    </div>
+
+    <div class="admin-content">
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="label">捐赠金额</span>
+                <span class="value highlight">￥<span th:text="${money}">0.00</span></span>
+            </div>
+            <div class="info-item">
+                <span class="label">支付方式</span>
+                <span class="value" th:text="${payType}">微信/支付宝</span>
+            </div>
+            <div class="info-item">
+                <span class="label">用户昵称</span>
+                <span class="value" th:text="${nickName}">-</span>
+            </div>
+            <div class="info-item">
+                <span class="label">支付标识号</span>
+                <span class="value" style="font-family: monospace;" th:text="${payNum}">-</span>
+            </div>
+            <div class="info-item full-width">
+                <span class="label">留言备注</span>
+                <span class="value" th:text="${description}">无留言信息</span>
+            </div>
+            <div class="info-item">
+                <span class="label">通知邮箱</span>
+                <span class="value" th:text="${email}">-</span>
+            </div>
+            <div class="info-item">
+                <span class="label">支付时间</span>
+                <span class="value" th:text="${time}">-</span>
+            </div>
+            <div class="info-item full-width">
+                <span class="label">设备环境</span>
+                <span class="value" style="font-size: 12px; color: #64748b;" th:text="${device}">-</span>
+            </div>
+        </div>
+
+        <div class="action-group">
+            <!-- 通过按钮 - 绿色 -->
+            <a th:href="${passUrl}"
+               style="display: block; width: 100%; background-color: #10b981; color: white; text-align: center; padding: 12px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 16px; margin-bottom: 12px;">
+                确认并审核通过
+            </a>
+
+            <!-- 驳回和编辑按钮容器 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <!-- 驳回按钮 - 黄色 -->
+                <a th:href="${backUrl}"
+                   style="display: block; background-color: #f59e0b; color: white; text-align: center; padding: 12px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px;">
+                    驳回申请
+                </a>
+
+                <!-- 编辑按钮 - 蓝色 -->
+                <a th:href="${editUrl}"
+                   style="display: block; background-color: #4f46e5; color: white; text-align: center; padding: 12px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px;">
+                    编辑订单
+                </a>
+            </div>
+
+            <!-- 统计按钮 - 灰色 -->
+            <a th:href="${statistic}"
+               style="display: block; width: 100%; background-color: #64748b; color: white; text-align: center; padding: 12px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px; margin-bottom: 12px;">
+                数据统计
+            </a>
+
+            <!-- 删除按钮 - 红色 -->
+            <a th:href="${delUrl}"
+               style="display: block; width: 100%; background-color: #fee2e2; color: #ef4444; text-align: center; padding: 12px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px;">
+                彻底删除该数据
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="footer-notice">
+    此链接3天内有效 · 仅限管理员操作
+</div>
+
+</body>
+</html>

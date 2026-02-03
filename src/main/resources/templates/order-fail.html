@@ -1,0 +1,215 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>支付失败 - 个人支付系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --danger-color: #ef4444; /* 失败红 */
+            --bg-color: #f3f4f6;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 失败动画图标 */
+        .failed-icon {
+            width: 72px;
+            height: 72px;
+            background-color: #fee2e2; /* 浅红背景 */
+            color: var(--danger-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .failed-icon svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        h1 {
+            color: var(--text-main);
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        /* 详情列表盒子 */
+        .details-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            align-items: center;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .value {
+            color: var(--text-main);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .amount-value {
+            color: var(--danger-color);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* 操作按钮 */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-retry {
+            background-color: var(--danger-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-retry:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: white;
+            color: var(--text-sub);
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-sub);
+            background-color: #f9fafb;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .footer a {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+
+        /* 简单的震动动画 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <div class="failed-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </div>
+
+    <h1>支付失败</h1>
+    <p class="subtitle">抱歉，订单在处理过程中遇到问题。<br>您的资金暂未扣除。</p>
+
+    <div class="details-box">
+        <div class="detail-item">
+            <span class="label">支付金额</span>
+            <span class="value amount-value">￥<span th:text="${money}">0.00</span></span>
+        </div>
+        <div class="detail-item">
+            <span class="label">用户昵称</span>
+            <span class="value" th:text="${nickName}">-</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">支付方式</span>
+            <span class="value" th:text="${payType}">-</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">创建时间</span>
+            <span class="value" th:text="${time}">-</span>
+        </div>
+        <div class="detail-item" style="align-items: flex-start; margin-top: 1rem; border-top: 1px dashed #e5e7eb; padding-top: 1rem;">
+            <span class="label" style="flex-shrink: 0; margin-right: 1rem;">留言备注</span>
+            <span class="value" style="text-align: left; font-weight: 400; color: var(--text-sub);" th:text="${info}">无</span>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a href="/" class="btn btn-outline">返回首页</a>
+    </div>
+
+    <div class="footer">
+        Powered By <a href="javascript:;">lpay</a> · 如有疑问请联系管理员
+    </div>
+</div>
+</body>
+</html>

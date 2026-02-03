@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>数据统计 - 纯净版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body { background: var(--bg); font-family: sans-serif; margin: 0; padding: 15px; }
+
+        .dashboard { max-width: 600px; margin: 0 auto; }
+
+        /* 总额卡片 */
+        .total-card {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+            margin-bottom: 20px;
+        }
+        .total-card span { font-size: 0.9rem; opacity: 0.8; }
+        .total-card h1 { margin: 10px 0 0; font-size: 2.5rem; font-weight: 800; }
+
+        /* 筛选区 */
+        .filter-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-card select, .filter-card input {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        /* 详情列表 */
+        .list-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .list-item:last-child { border: none; }
+        .channel-name { color: var(--text-sub); font-size: 0.95rem; }
+        .channel-value { font-weight: 700; color: var(--text-main); }
+
+        .btn-refresh {
+            width: 100%;
+            background: #fff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+    <div class="total-card">
+        <span>当前周期总营收 (￥)</span>
+        <h1 id="amount">0.00</h1>
+    </div>
+
+    <div class="filter-card">
+        <select id="typeSelect" onchange="onTypeChange()">
+            <option value="0">今日统计</option>
+            <option value="6">昨天</option>
+            <option value="1">本周</option>
+            <option value="2">本月</option>
+            <option value="3">本年统计</option>
+            <option value="4">上周</option>
+            <option value="5">上月</option>
+            <option value="-1">总额累计</option>
+            <option value="-2">📅 自定义日期范围</option>
+        </select>
+
+        <div id="customRange" style="display:none; gap:10px; display:flex;">
+            <input type="date" id="start" onchange="doQuery()" style="flex:1">
+            <input type="date" id="end" onchange="doQuery()" style="flex:1">
+        </div>
+    </div>
+
+    <div class="list-card">
+        <div class="list-item"><span class="channel-name">支付宝 (当面付)</span><span class="channel-value" id="alipayDmf">0.00</span></div>
+        <div class="list-item"><span class="channel-name">微信官方</span><span class="channel-value" id="weixin">0.00</span></div>
+        <div class="list-item"><span class="channel-name">个人支付宝</span><span class="channel-value" id="alipay">0.00</span></div>
+    </div>
+
+    <button class="btn-refresh" onclick="doQuery()">手动刷新数据</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+    var myToken = new URLSearchParams(window.location.search).get('myToken');
+
+    function onTypeChange() {
+        var val = $("#typeSelect").val();
+        if(val == "-2") {
+            $("#customRange").css("display", "flex");
+        } else {
+            $("#customRange").hide();
+            doQuery();
+        }
+    }
+
+    function doQuery() {
+        $.post('/order/statistic', {
+            type: $("#typeSelect").val(),
+            myToken: myToken,
+            start: $("#start").val(),
+            end: $("#end").val()
+        }, function (data) {
+            if(data.code == 200){
+                var r = data.data;
+                // 更新 UI
+                $("#amount").text(parseFloat(r.amount || 0).toFixed(2));
+                $("#alipayDmf").text(parseFloat(r.alipayDmf || 0).toFixed(2));
+                $("#weixin").text(parseFloat(r.weixin || 0).toFixed(2));
+                $("#alipay").text(parseFloat(r.alipay || 0).toFixed(2));
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    // 页面加载自动查询一次
+    $(document).ready(doQuery);
+</script>
+
+</body>
+</html>

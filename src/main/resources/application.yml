@@ -1,0 +1,87 @@
+server:
+  port: 8889
+
+spring:
+  mail:
+    host: smtp.163.com #邮箱服务器
+    password: xxxx #邮箱密码
+    port: 25
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: "smtp.163.com"  # 信任指定主机
+    username: codewendao@163.com #发送邮箱的账号
+
+  output:
+    ansi:
+      enabled: DETECT
+  thymeleaf:
+    cache: false
+    enabled: true
+    mode: LEGACYHTML5
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    filters: stat,wall,log4j
+    initialSize: 5
+    maxActive: 20
+    maxPoolPreparedStatementPerConnectionSize: 20
+    maxWait: 60000
+    minEvictableIdleTimeMillis: 300000
+    minIdle: 5
+    password: xxxxx
+    poolPreparedStatements: true
+    testOnBorrow: false
+    testOnReturn: false
+    testWhileIdle: true
+    timeBetweenEvictionRunsMillis: 60000
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://xx.xx.xx.xx:8001/pay?useSSL=false&characterEncoding=utf-8
+    username: xxx
+    validationQuery: SELECT 1 FROM DUAL
+  redis:
+    database: 1
+    host: 127.0.0.1
+    password:
+    pool:
+      max-active: -1
+      max-idle: 8
+      max-wait: -1
+      min-idle: 0
+    port: 6379
+    timeout: 10000
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      update-strategy: NOT_EMPTY
+      #逻辑删除字段
+      logic-delete-field: delFlag
+      #删除值
+      logic-delete-value: 1
+      #未删除值
+      logic-not-delete-value: 0
+
+paypro:
+  indexTitle: pay个人收款系统
+  name: codewendao
+  title: pay个人收款系统
+  mailTitle: 待审核
+  site: http://localhost:8889
+  email:
+    receiver: 958625993@qq.com
+    sender: codewendao@163.com
+  rateLimit:
+    # 防炸库缓存验证(分钟)
+    ipExpire: 2
+  token:
+    value: 123
+    expire: 14
+  qrCodeNum: 2

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>捐赠中心</title>
+    <!-- 引入Vue 3 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <!-- 引入API配置 -->
+    <script src="assets/js/api-config.js"></script>
+    <!-- 引入HTTP工具 -->
+    <script src="assets/js/http-util.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .nav-tab.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .page-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .recharge-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .amount-section {
+            margin-bottom: 30px;
+        }
+
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .amount-option {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .amount-option:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+
+        .amount-option.selected {
+            border-color: #007bff;
+            background: #e7f3ff;
+            color: #007bff;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .payment-methods {
+            margin: 30px 0;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #007bff;
+            transform: translateX(5px);
+        }
+
+        .payment-method.selected {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .payment-info h3 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .payment-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 加载遮罩 -->
+    <div v-if="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>💳 捐赠中心</h1>
+            <p>安全、快捷的在线充值服务</p>
+        </div>
+
+        <div class="main-content">
+            <nav class="nav-tabs">
+                <a href="recharge.html" class="nav-tab active">💰 充值</a>
+                <a href="help.html" class="nav-tab">❓ 帮助中心</a>
+            </nav>
+
+            <div class="page-content">
+                <!-- 错误信息 -->
+                <div v-if="errorMessage" class="error-message">
+                    ❌ {{ errorMessage }}
+                </div>
+
+                <!-- 成功信息 -->
+                <div v-if="successMessage" class="successMessage">
+                    ✅ {{ successMessage }}
+                </div>
+                <div class="recharge-form">
+<!--                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">💰 选择充值金额</h2>-->
+
+                    <div class="amount-section">
+                        <!-- 快速选择部分 -->
+                        <h3 style="margin-bottom: 15px; color: #555;">请选择捐赠金额</h3>
+                        <div v-if="productList.length > 0" class="amount-options">
+                            <div
+                                    v-for="product in productList"
+                                    :key="product.id"
+                                    class="amount-option"
+                                    :class="{
+                                    selected: selectedProductId === product.id && !customAmount
+                                }"
+                                    @click="selectProduct(product)"
+                                    :title="product.description"
+                            >
+                                <div>￥{{ formatMoney(product.money) }}</div>
+                                <div style="font-size: 12px; margin-top: 5px; color: #666;">
+                                    {{ product.productName }}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else style="text-align: center; color: #999; padding: 20px;">
+                            暂无商品信息
+                        </div>
+
+                        <h3 style="margin-bottom: 15px; color: #555;">自定义金额</h3>
+                        <input
+                                type="number"
+                                class="amount-input"
+                                placeholder="随意撒币"
+                                v-model="customAmount"
+                                min="1"
+                                max="10000"
+                                @input="clearSelectedProduct"
+                        />
+
+                        <h3 style="margin-top: 15px; color: #555;">拓展信息</h3>
+                        <input
+                                type="text"
+                                class="amount-input"
+                                placeholder="请输入备注信息（选填）"
+                                v-model="description"
+                        />
+
+                        <h3 style="margin-top: 15px; color: #555;">邮箱</h3>
+                        <input
+                                type="text"
+                                class="amount-input"
+                                placeholder="请输入邮箱"
+                                v-model="email"
+                        />
+                    </div>
+
+                    <div class="payment-methods">
+                        <h3 style="margin-bottom: 20px; color: #555;">💳 选择支付方式</h3>
+                        <div
+                                class="payment-method"
+                                :class="{ selected: selectedPayment === method.id }"
+                                v-for="method in paymentMethods"
+                                :key="method.id"
+                                @click="selectPayment(method.id)"
+                        >
+                            <div class="payment-icon">{{ method.icon }}</div>
+                            <div class="payment-info">
+                                <h3>{{ method.name }}</h3>
+                                <p>{{ method.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                            class="submit-btn"
+                            :disabled="!canSubmit"
+                            @click="submitRecharge"
+                    >
+                        立即充值 ￥{{ formatMoney(finalAmount) }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 捐赠中心 - 安全可靠的支付服务</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    const app = createApp({
+        data() {
+            return {
+                selectedProductId: null,  // 选中的商品ID
+                selectedAmount: 0,         // 选中的金额
+                customAmount: '',          // 自定义金额
+                customText: '',           // 自定义备注
+                email: '',                // 邮箱
+                selectedPayment: '',      // 选中的支付方式
+                loading: false,           // 加载状态
+                errorMessage: '',         // 错误信息
+                successMessage: '',       // 成功信息
+                productList: [],          // 从接口获取的商品列表
+                paymentMethods: [
+                    {
+                        id: 'Alipay',
+                        name: '支付宝转账',
+                        description: '使用支付宝转账',
+                        icon: '🔵'
+                    },
+                    {
+                        id: 'Wechat',
+                        name: '微信支付',
+                        description: '使用微信扫码支付',
+                        icon: '🟢'
+                    }
+                ]
+            }
+        },
+        computed: {
+            // 最终金额：优先使用自定义金额，如果没有则使用选中的商品金额
+            finalAmount() {
+                if (this.customAmount) {
+                    return parseFloat(this.customAmount) || 0;
+                }
+
+                if (this.selectedProductId) {
+                    const selectedProduct = this.productList.find(p => p.id === this.selectedProductId);
+                    return selectedProduct ? selectedProduct.money : 0;
+                }
+
+                return 0;
+            },
+
+            // 是否可以提交
+            canSubmit() {
+                return this.finalAmount > 0 && this.selectedPayment && this.email;
+            }
+        },
+        methods: {
+            // 格式化金额，保留两位小数
+            formatMoney(money) {
+                if (!money && money !== 0) return '0.00';
+                return parseFloat(money).toFixed(2);
+            },
+
+            // 清除消息
+            clearMessages() {
+                this.errorMessage = '';
+                this.successMessage = '';
+            },
+
+            // 显示错误消息
+            showError(message) {
+                this.errorMessage = message;
+                this.successMessage = '';
+                setTimeout(() => {
+                    this.errorMessage = '';
+                }, 5000);
+            },
+
+            // 显示成功消息
+            showSuccess(message) {
+                this.successMessage = message;
+                this.errorMessage = '';
+                setTimeout(() => {
+                    this.successMessage = '';
+                }, 3000);
+            },
+
+            // 选择商品
+            selectProduct(product) {
+                this.selectedProductId = product.id;
+                this.selectedAmount = product.money;
+                this.customAmount = '';  // 清空自定义金额
+                this.clearMessages();
+            },
+
+            // 当自定义金额输入时，清空选中的商品
+            clearSelectedProduct() {
+                if (this.customAmount) {
+                    this.selectedProductId = null;
+                    this.selectedAmount = 0;
+                }
+            },
+
+            // 选择支付方式
+            selectPayment(method) {
+                this.selectedPayment = method;
+                this.clearMessages();
+            },
+
+            // 发起充值请求
+            async submitRecharge() {
+                if (!this.canSubmit) {
+                    this.showError('请选择充值金额和支付方式');
+                    return;
+                }
+
+                // 检查httpUtil是否可用
+                if (typeof httpUtil === 'undefined' || !httpUtil) {
+                    console.error('httpUtil不可用，尝试重新初始化...');
+                    if (typeof initHttpUtil === 'function') {
+                        window.httpUtil = initHttpUtil();
+                    }
+                    if (!window.httpUtil) {
+                        this.showError('HTTP工具初始化失败，请刷新页面重试');
+                        return;
+                    }
+                }
+
+                this.loading = true;
+                this.clearMessages();
+
+                try {
+                    // 构建充值请求数据
+                    const rechargeData = {
+                        money: this.finalAmount,
+                        payType: this.selectedPayment,
+                        description: this.description,
+                        nickName: "",
+                        custom: Boolean(this.customAmount),
+                        email: this.email,
+                        productId: this.selectedProductId
+                    };
+
+                    console.log('发起充值请求:', rechargeData);
+
+                    // 发起充值请求
+                    let response;
+                    response = await httpUtil.post(API_CONFIG.ENDPOINTS.RECHARGE, rechargeData);
+
+                    console.log('充值响应:', response);
+
+                    if (response.code == 200) {
+                        this.showSuccess(`充值请求提交成功！订单号：${response.data.id}`);
+                        // 延迟跳转到支付页面
+                        setTimeout(() => {
+                            const paymentUrl = `payment.html?orderId=${response.data.id}&money=${response.data.money}&payType=${response.data.payType}&payNum=${response.data.payNum}&customerQr=${response.data.custom}&picName=${encodeURIComponent((response.data.money || 0).toFixed(2))}&qrCode=${response.data.qrCode}&payQrNum=${response.data.payQrNum}`;
+                            window.location.href = paymentUrl;
+                        }, 1000);
+                    } else {
+                        this.showError(response.message || '充值请求失败，请稍后重试');
+                    }
+                } catch (error) {
+                    console.error('充值请求失败:', error);
+
+                    if (error.message.includes('超时')) {
+                        this.showError('网络超时，请检查网络连接后重试');
+                    } else if (error.message.includes('HTTP Error')) {
+                        this.showError('服务器错误，请稍后重试');
+                    } else {
+                        this.showError('充值请求失败，请稍后重试');
+                    }
+                } finally {
+                    this.loading = false;
+                }
+            }
+        },
+
+        // 组件挂载时初始化
+        async mounted() {
+            this.loading = true;
+
+            // 检查API_CONFIG是否已加载
+            if (typeof API_CONFIG === 'undefined') {
+                console.error('API_CONFIG未定义，请检查api-config.js文件是否正确加载');
+                this.showError('API配置加载失败，请刷新页面重试');
+                this.loading = false;
+                return;
+            }
+
+            // 检查httpUtil是否已初始化
+            if (typeof httpUtil === 'undefined') {
+                console.error('httpUtil未定义，正在尝试初始化...');
+                // 尝试初始化httpUtil
+                if (typeof initHttpUtil === 'function') {
+                    window.httpUtil = initHttpUtil();
+                } else {
+                    this.showError('HTTP工具初始化失败，请刷新页面重试');
+                    this.loading = false;
+                    return;
+                }
+            }
+
+            try {
+                // 获取商品列表
+                const data = {
+                    types: ['CODE']  // 这里可以根据需要传入其他类型
+                };
+
+                const response = await httpUtil.post(API_CONFIG.ENDPOINTS.PRODUCT_LIST, data);
+
+                if (response.code === 200 && response.data) {
+                    // 将商品列表赋值给productList
+                    this.productList = response.data;
+                    console.log('商品列表加载成功:', this.productList);
+                } else {
+                    console.error('获取商品列表失败:', response.msg);
+                    this.showError(`获取商品列表失败: ${response.msg || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('获取商品信息失败:', error);
+                this.showError('获取商品信息失败，请稍后重试');
+            } finally {
+                this.loading = false;
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
+</body>
+</html>
