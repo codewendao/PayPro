@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心</title>
+    <!-- 引入Vue 3 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .nav-tab.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .page-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+        
+        .help-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+        }
+        
+        .help-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .help-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-section p,
+        .help-section li {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .help-section ul {
+            padding-left: 20px;
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .contact-info h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .contact-item {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .faq-question {
+            background: #007bff;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question:hover {
+            background: #0056b3;
+        }
+        
+        .faq-answer {
+            background: white;
+            padding: 20px;
+            border-left: 3px solid #007bff;
+            display: none;
+        }
+        
+        .faq-answer.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 200px;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+
+        .tutorial-image {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: block;
+        }
+
+        .tutorial-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .tutorial-image:hover img {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>💳 帮助中心</h1>
+                <p>安全、快捷的个人支付系统</p>
+            </div>
+            
+            <div class="main-content">
+                
+                <div class="page-content">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">❓ 关于支付宝官方个人渠道收款</h2>
+                    
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <div class="help-section">
+                            <h3>🔒 开通教程</h3>
+                            <p>
+                                进入捐赠页面捐赠成功后您将获取到开通教程，开通无需营业执照，完全免费，个人可申请签约 <a  href="recharge.html" target="_blank" rel="noopener noreferrer">点我立即获取教程</a>
+                            </p>
+
+                            <!-- 教程示意图 -->
+                            <div class="tutorial-image">
+                                <img src="/assets/images/zfb_open.jpg" alt="支付宝个人收款渠道开通教程示意图"/>
+                            </div>
+
+                        </div>
+                        
+                        <div class="help-section">
+                            <h3>💡 常见问题</h3>
+                            <div class="faq-item" v-for="(faq, index) in faqList" :key="index">
+                                <div class="faq-question" @click="toggleFaq(index)">
+                                    <span>{{ faq.question }}</span>
+                                    <span>{{ faq.isOpen ? '−' : '+' }}</span>
+                                </div>
+                                <div class="faq-answer" :class="{ active: faq.isOpen }">
+                                    <p>{{ faq.answer }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <h3>📞 联系客服</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>&copy; 充值中心 - 安全可靠的支付服务</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    faqList: [
+                        {
+                            question: '开通需要提供什么资料？',
+                            answer: '申请时仅需填写你的姓名、手机号、邮件等信息，可无需营业执照',
+                            isOpen: false
+                        },
+                        {
+                            question: '提交申请后开通成功需要多久？',
+                            answer: '08:00~20:00时间段申请预计3小时内办理成功（法定节假日顺延），由于需支付宝客服人工审核，请耐心等待！审核是支付宝官方审核！',
+                            isOpen: false
+                        },
+                        {
+                            question: '任何产业都能开通接入吗？',
+                            answer: '你开通的是支付宝官方的产品，由支付宝官方负责风控，不合法的业务请不要申请！',
+                            isOpen: false
+                        },
+                        {
+                            question: '收款有何限制？',
+                            answer: '若在申请时提交了营业执照，收款金额不受限制，未提供的话单笔最高是2000，单日最多20000。',
+                            isOpen: false
+                        },
+                        {
+                            question: '费率如何计算？',
+                            answer: '不提供营业执照基础版目前每笔交易为0.38%，全部由支付宝官方收取，若提供营业执照不限额版费率为0.6%，实际以签约时支付宝产品协议为准',
+                            isOpen: false
+                        }
+                    ]
+                }
+            },
+            methods: {
+                toggleFaq(index) {
+                    this.faqList[index].isOpen = !this.faqList[index].isOpen;
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

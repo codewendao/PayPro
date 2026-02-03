@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心</title>
+    <!-- 引入Vue 3 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .nav-tab.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .page-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+        
+        .help-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+        }
+        
+        .help-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .help-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-section p,
+        .help-section li {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .help-section ul {
+            padding-left: 20px;
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .contact-info h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .contact-item {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .faq-question {
+            background: #007bff;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question:hover {
+            background: #0056b3;
+        }
+        
+        .faq-answer {
+            background: white;
+            padding: 20px;
+            border-left: 3px solid #007bff;
+            display: none;
+        }
+        
+        .faq-answer.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 200px;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>💳 充值中心</h1>
+                <p>安全、快捷的个人支付系统</p>
+            </div>
+            
+            <div class="main-content">
+                <nav class="nav-tabs">
+                    <a href="recharge.html" class="nav-tab">💰 充值</a>
+<!--                    <a href="history.html" class="nav-tab">📋 充值记录</a>-->
+                    <a href="help.html" class="nav-tab active">❓ 帮助中心</a>
+                </nav>
+                
+                <div class="page-content">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">❓ 帮助中心</h2>
+                    
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <div class="help-section">
+                            <h3>🔒 支付安全</h3>
+                            <p>
+                                不依赖任何第三方平台，自助完成支付。所有支付都通过官方支付渠道处理，资金安全有保障。
+                            </p>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h3>💰 支付方式说明</h3>
+                            <ul>
+                                <li><strong>支付宝转账：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡、花呗等多种付款方式</li>
+                                <li><strong>微信支付：</strong>打开微信APP扫描二维码完成支付，支持零钱、银行卡等付款方式</li>
+                                <li><strong>支付宝扫码：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡、花呗等多种付款方式</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h3>❌ 支付失败处理</h3>
+                            <ul>
+                                <li>检查网络连接是否正常</li>
+                                <li>确认支付账户余额是否充足</li>
+                                <li>尝试刷新页面重新支付</li>
+                                <li>更换其他支付方式</li>
+                                <li>如仍无法解决，请联系客服</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h3>💡 常见问题</h3>
+                            <div class="faq-item" v-for="(faq, index) in faqList" :key="index">
+                                <div class="faq-question" @click="toggleFaq(index)">
+                                    <span>{{ faq.question }}</span>
+                                    <span>{{ faq.isOpen ? '−' : '+' }}</span>
+                                </div>
+                                <div class="faq-answer" :class="{ active: faq.isOpen }">
+                                    <p>{{ faq.answer }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>&copy; 充值中心 - 安全可靠的支付服务</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    faqList: [
+                        {
+                            question: '支付后多久到账？',
+                            answer: '正常情况下是秒到账，因为使用的是官方的渠道。',
+                            isOpen: false
+                        },
+                        {
+                            question: '支付有手续费吗？',
+                            answer: '平台不收取任何充值手续费。微信和支付宝转账付款是直接到你本人的余额的，不会产生手续费，但是支付宝扫码会产生手续费，大约是0.6%。',
+                            isOpen: false
+                        }
+                    ]
+                }
+            },
+            methods: {
+                toggleFaq(index) {
+                    this.faqList[index].isOpen = !this.faqList[index].isOpen;
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

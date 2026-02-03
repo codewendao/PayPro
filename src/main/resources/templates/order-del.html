@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>确认删除订单 - 个人支付系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        :root {
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .delete-card {
+            max-width: 400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 30px 24px;
+        }
+
+        /* 警告图标 */
+        .warning-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #fee2e2;
+            color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .warning-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-confirm {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background-color: #f1f5f9;
+            color: var(--text-sub);
+        }
+
+        .btn-cancel:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        /* 加载状态 */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="delete-card">
+    <div class="warning-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+    </div>
+
+    <h2>确认删除数据？</h2>
+    <p>此操作将永久删除该笔支付订单记录，删除后将无法找回。请务必核对无误后再操作。</p>
+
+    <div class="button-section">
+        <div class="button-group">
+            <button class="btn btn-confirm" id="btnSubmit" onclick="submit()">确认彻底删除</button>
+            <button class="btn btn-cancel" onclick="window.history.back()">取消操作</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+    // 解析 URL 参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        return r != null ? unescape(r[2]) : null;
+    }
+
+    var id = getUrlParam('id');
+    var token = getUrlParam('token');
+
+    function submit() {
+        // 禁用按钮防止重复点击
+        var btn = $("#btnSubmit");
+        btn.attr("disabled", true).text("正在处理...");
+
+        $.get('/order/del', {
+            id: id,
+            token: token
+        }, function (data) {
+            if (data.code == 200) {
+                // 删除成功跳转到成功提示页
+                window.location.href = "/success";
+            } else {
+                alert("删除失败：" + data.message);
+                btn.attr("disabled", false).text("确认彻底删除");
+            }
+        }).fail(function() {
+            alert("请求失败，请稍后重试");
+            btn.attr("disabled", false).text("确认彻底删除");
+        });
+    }
+</script>
+
+</body>
+</html>
