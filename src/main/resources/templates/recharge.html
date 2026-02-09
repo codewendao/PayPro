@@ -259,6 +259,30 @@
             opacity: 0.8;
         }
 
+        /* 禁用状态的基础样式 */
+        .payment-method.disabled {
+            opacity: 0.5; /* 降低透明度表示不可用 */
+            cursor: not-allowed; /* 鼠标显示为禁止符号 */
+            pointer-events: none; /* 阻止所有鼠标事件，确保不可点击 */
+            /* 可以根据需要添加其他样式，如灰色背景或边框 */
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+
+        /* 如果希望更明确地视觉区分，可以覆盖选中状态 */
+        .payment-method.disabled.selected {
+            border-color: #ccc; /* 禁用状态下的选中边框颜色变浅 */
+            background-color: #eee;
+        }
+
+        /* 禁用状态提示文字样式 */
+        .disabled-hint {
+            color: #ff6b6b; /* 使用醒目的颜色 */
+            font-size: 0.85em;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
     </style>
 </head>
 <body>
@@ -276,7 +300,8 @@
 
         <div class="main-content">
             <nav class="nav-tabs">
-                <a href="recharge.html" class="nav-tab active">💰 充值</a>
+                <a href="recharge.html" class="nav-tab active">💰 捐赠</a>
+                <a href="history.html" class="nav-tab">📋 捐赠记录</a>
                 <a href="help.html" class="nav-tab">❓ 帮助中心</a>
             </nav>
 
@@ -349,7 +374,7 @@
                         <h3 style="margin-bottom: 20px; color: #555;">💳 选择支付方式</h3>
                         <div
                                 class="payment-method"
-                                :class="{ selected: selectedPayment === method.id }"
+                                :class="[{ selected: selectedPayment === method.id }, { disabled: !method.status }]"
                                 v-for="method in paymentMethods"
                                 :key="method.id"
                                 @click="selectPayment(method.id)"
@@ -400,14 +425,24 @@
                         id: 'Alipay',
                         name: '支付宝转账',
                         description: '使用支付宝转账',
-                        icon: '🔵'
+                        icon: '🔵',
+                        status: true
                     },
                     {
                         id: 'Wechat',
                         name: '微信支付',
                         description: '使用微信扫码支付',
-                        icon: '🟢'
+                        icon: '🟢',
+                        status: true
+                    },
+                    {
+                        id: 'Alipay_dmf',
+                        name: '支付宝当面付（自动收款，无须备注！开发中）',
+                        description: '使用支付宝扫码',
+                        icon: '🔵',
+                        status: false
                     }
+
                 ]
             }
         },

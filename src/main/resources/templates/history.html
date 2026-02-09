@@ -393,12 +393,7 @@
                             this.rechargeHistory = [];
                         }
                     } catch (error) {
-                        console.error('请求失败:', error);
-<!--                        this.rechargeHistory = [];-->
-<!--                        // 测试数据-->
-<!--                        this.rechargeHistory = this.generateTestData();-->
-<!--                        this.total = 25;-->
-<!--                        this.pages = 3;-->
+                        console.error('请求失败:', error)
                     } finally {
                         this.loading = false;
                     }
@@ -424,7 +419,8 @@
                 getPayTypeText(payType) {
                     const typeMap = {
                         'Alipay': '支付宝',
-                        'Wechat': '微信支付'
+                        'Wechat': '微信支付',
+                        'Alipay_dfm': '支付宝当面付'
                     };
                     return typeMap[payType] || payType;
                 },

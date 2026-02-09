@@ -222,6 +222,7 @@ public class OrderServiceImpl implements OrderService {
         if (pay.getProductId() != null) {
             Product product = productMapper.selectById(pay.getProductId());
             if (product.getType().equals("CODE")) {
+                pay.setDownloadUrl(payProConfig.getDownloadUrl());
                 emailUtils.sendTemplateMail(payProConfig.getEmail().getSender(), pay.getEmail(), "【Pay个人收款支付系统】支付成功通知（附下载链接）",
                         "order-success", pay);
                 pay.setState(OrderStatesEnum.SUCCESS_PAY.getState());

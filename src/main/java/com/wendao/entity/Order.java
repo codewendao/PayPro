@@ -130,4 +130,7 @@ public class Order implements Serializable{
     @JsonIgnore
     private String statistic;
 
+    @TableField(exist = false)
+    private String downloadUrl;
+
 }

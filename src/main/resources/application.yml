@@ -72,9 +72,9 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 paypro:
-  indexTitle: pay个人收款系统
+  indexTitle: PayPro个人收款系统 # 网站首页标题
   name: codewendao
-  title: pay个人收款系统
+  title: PayPro个人收款系统 # 邮件标题
   mailTitle: 待审核
   site: http://localhost:8889
   email:
@@ -87,3 +87,4 @@ paypro:
     value: 123
     expire: 14
   qrCodeNum: 2
+  downloadUrl: https://github.com/codewendao/PayPro
