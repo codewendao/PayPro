@@ -75,7 +75,6 @@ paypro:
   indexTitle: PayPro个人收款系统 # 网站首页标题
   name: codewendao
   title: PayPro个人收款系统 # 邮件标题
-  mailTitle: 待审核
   site: http://localhost:8889
   email:
     receiver: 958625993@qq.com
