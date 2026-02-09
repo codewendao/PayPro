@@ -746,20 +746,16 @@
                 
                 // 处理微信支付二维码图片加载错误
                 handleImageError(event) {
-                    console.error('微信支付二维码图片加载失败:', this.qrImageUrl);
-                    
+                    console.error('支付二维码图片加载失败:', this.qrImageUrl);
+                    debugger
                     // 尝试备用路径
                     if (!event.target.dataset.retried) {
-                        event.target.dataset.retried = 'true';
-                        // 尝试使用custom.png作为备用
-                        if (this.qrImageUrl !== 'assets/qr/wechat/custom.png') {
-                            console.log('尝试使用备用图片: assets/qr/wechat/custom.png');
-                            if(this.payType == 'Alipay'){
-                               event.target.src = 'assets/qr/alipay/custom.png';
-                            }else {
-                                event.target.src = 'assets/qr/wechat/custom.png';
-                            }
-                            return;
+                        if(this.orderInfo.payType == 'Alipay'){
+                            event.target.src = 'assets/qr/alipay/custom.png';
+                            return
+                        }else {
+                            event.target.src = 'assets/qr/wechat/custom.png';
+                            return
                         }
                     }
                     

@@ -2,6 +2,8 @@ server:
   port: 8889
 
 spring:
+  profiles:
+    active: local
   mail:
     host: smtp.163.com #邮箱服务器
     password: xxxx #邮箱密码
