@@ -434,7 +434,7 @@
 
         <div v-if="showAlipayNotice" class="wechat-notice-overlay" @click.self="closeAlipayNotice">
             <div class="wechat-notice-modal">
-                <button class="wechat-notice-close" @click="closeWechatNotice">×</button>
+                <button class="wechat-notice-close" @click="closeAlipayNotice">×</button>
 
                 <div class="wechat-notice-title">请在备注中输入支付标识号</div>
 
@@ -459,7 +459,7 @@
 
         <div v-if="showWechatZsNotice" class="wechat-notice-overlay" @click.self="closeWechatNotice">
             <div class="wechat-notice-modal">
-                <button class="wechat-notice-close" @click="closeWechatNotice">×</button>
+                <button class="wechat-notice-close" @click="closeWechatZsNotice">×</button>
 
                 <div class="wechat-notice-title">请在备注中输入支付标识号</div>
 
