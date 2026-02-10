@@ -377,7 +377,7 @@
                                 :class="[{ selected: selectedPayment === method.id }, { disabled: !method.status }]"
                                 v-for="method in paymentMethods"
                                 :key="method.id"
-                                @click="selectPayment(method.id)"
+                                @click="selectPayment(method)"
                         >
                             <div class="payment-icon">{{ method.icon }}</div>
                             <div class="payment-info">
@@ -412,6 +412,7 @@
             return {
                 selectedProductId: null,  // 选中的商品ID
                 selectedAmount: 0,         // 选中的金额
+                useLocalQrCode: false,         // 选中的金额
                 customAmount: '',          // 自定义金额
                 customText: '',           // 自定义备注
                 email: '',                // 邮箱
@@ -422,32 +423,36 @@
                 productList: [],          // 从接口获取的商品列表
                 paymentMethods: [
                     {
-                        id: 'Alipay',
+                        id: 'alipay',
                         name: '支付宝转账',
                         description: '使用支付宝转账（免输备注开发中）',
                         icon: '🔵',
-                        status: true
+                        status: true,
+                        useLocalQrCode:true
                     },
                     {
-                        id: 'Wechat',
+                        id: 'wechat',
                         name: '微信支付',
                         description: '使用微信扫码支付',
                         icon: '🟢',
-                        status: true
+                        status: true,
+                        useLocalQrCode:true
                     },
                     {
-                        id: 'Wechat_zs',
+                        id: 'wechat_zs',
                         name: '微信赞赏码支付',
                         description: '使用微信扫码支付',
                         icon: '🟢',
-                        status: true
+                        status: true,
+                        useLocalQrCode:true
                     },
                     {
-                        id: 'Alipay_dmf',
+                        id: 'alipay_dmf',
                         name: '支付宝当面付',
                         description: '使用支付宝扫码（自动收款，无须备注！开发中）',
                         icon: '🔵',
-                        status: false
+                        status: false,
+                        useLocalQrCode:false
                     }
 
                 ]
@@ -522,7 +527,8 @@
 
             // 选择支付方式
             selectPayment(method) {
-                this.selectedPayment = method;
+                this.selectedPayment = method.id;
+                this.useLocalQrCode = method.useLocalQrCode;
                 this.clearMessages();
             },
 
@@ -571,8 +577,10 @@
                     if (response.code == 200) {
                         this.showSuccess(`充值请求提交成功！订单号：${response.data.id}`);
                         // 延迟跳转到支付页面
+                        // 或保存 this 引用
+                        const that = this;
                         setTimeout(() => {
-                            const paymentUrl = `payment.html?orderId=${response.data.id}&money=${response.data.money}&payType=${response.data.payType}&payNum=${response.data.payNum}&customerQr=${response.data.custom}&picName=${encodeURIComponent((response.data.money || 0).toFixed(2))}&qrCode=${response.data.qrCode}&payQrNum=${response.data.payQrNum}`;
+                            const paymentUrl = `payment.html?orderId=${response.data.id}&money=${response.data.money}&payType=${response.data.payType}&payNum=${response.data.payNum}&customerQr=${response.data.custom}&picName=${encodeURIComponent((response.data.money || 0).toFixed(2))}&qrCode=${response.data.qrCode}&payQrNum=${response.data.payQrNum}&useLocalQrCode=${that.useLocalQrCode}`;
                             window.location.href = paymentUrl;
                         }, 1000);
                     } else {

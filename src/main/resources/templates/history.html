@@ -418,9 +418,10 @@
 
                 getPayTypeText(payType) {
                     const typeMap = {
-                        'Alipay': '支付宝',
-                        'Wechat': '微信支付',
-                        'Alipay_dfm': '支付宝当面付'
+                        'alipay': '支付宝',
+                        'wechat': '微信支付',
+                        'wechat_zs': '微信赞赏',
+                        'alipay_dfm': '支付宝当面付'
                     };
                     return typeMap[payType] || payType;
                 },
