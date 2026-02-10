@@ -498,9 +498,7 @@
                     loading: false, // 修改为false，让DOM立即渲染
                     showWechatNotice: false, // 控制微信支付提示框显示
                     showAlipayNotice: false, // 控制微信支付提示框显示
-                    showWechatZsNotice: false,
-                    useLocalQrCode: true // 是否使用本地qrcode
-
+                    showWechatZsNotice: false
                 }
             },
             computed: {
@@ -511,16 +509,19 @@
                 },
                 payTypeName() {
                     const methods = {
-                        'Alipay': '支付宝',
-                        'Wechat': '微信支付',
+                        'alipay': '支付宝',
+                        'wechat': '微信',
+                        'wechat_zs': '微信',
+                        'alipay_dmf': '支付宝',
                     };
                     return methods[this.orderInfo.payType] || '未知支付方式';
                 },
                 paymentIcon() {
                     const icons = {
                         'alipay': '🔵',
-                        'Wechat': '🟢',
-                        'Alipay_f2f': '💙'
+                        'wechat': '🟢',
+                        'wechat_zs': '🟢',
+                        'alipay_dmf': '💙'
                     };
                     return icons[this.orderInfo.payType] || '💳';
                 }
@@ -545,6 +546,7 @@
                         picName: params.get('picName'),
                         qrCode: params.get('qrCode'), // 二维码，当为支付宝扫码时使用
                         payQrNum: params.get('payQrNum'),
+                        useLocalQrCode: params.get('useLocalQrCode'),
                     };
                 },
 
@@ -556,15 +558,15 @@
                     await this.createPaymentOrder();
 
                     // 如果是微信支付，显示提示框
-                    if (this.orderInfo.payType === 'Wechat') {
+                    if (this.orderInfo.payType === 'wechat') {
                         this.showWechatNotice = true;
                     }
 
-                    if (this.orderInfo.payType === 'Alipay') {
+                    if (this.orderInfo.payType === 'alipay') {
                         this.showAlipayNotice = true;
                     }
 
-                    if (this.orderInfo.payType === 'Wechat_zs') {
+                    if (this.orderInfo.payType === 'wechat_zs') {
                         this.showWechatZsNotice = true;
                     }
 
@@ -614,33 +616,17 @@
                 async createPaymentOrder() {
                     try {
                         console.log('初始化支付订单:', this.orderInfo);
-                        if (this.orderInfo.payType === 'Alipay') {
+                        if (this.orderInfo.useLocalQrCode === "true") {
                             // 支付宝返回图片路径
+                            debugger
                             if (this.orderInfo.customerQr === "true") {
                                 // 表示是自定义金额
-                                this.qrImageUrl = "assets/qr/alipay/custom.png";
+                                this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/custom.png`;
                             } else {
                                 // 正常订单
-                                this.qrImageUrl = `assets/qr/alipay/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
+                                this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
                             }
-                            console.log('支付宝支付二维码路径:', this.qrImageUrl);
-                            this.useLocalQrCode = true;
-                        } else if (this.orderInfo.payType === 'Wechat') {
-                            // 微信返回图片路径
-                            if (this.orderInfo.customerQr === "true") {
-                                // 表示是自定义金额
-                                this.qrImageUrl = "assets/qr/wechat/custom.png";
-                            } else {
-                                // 正常订单
-                                this.qrImageUrl = `assets/qr/wechat/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
-                            }
-                            console.log('微信支付二维码路径:', this.qrImageUrl);
-                            this.useLocalQrCode = true;
-                        }
-                        else if (this.orderInfo.payType === 'Wechat_zs') {
-                            // 微信返回图片路径
-                            this.qrImageUrl = "assets/qr/wechatzs/custom.png";
-                            console.log('赞赏码使用自定义url:', this.qrImageUrl);
+                            console.log('支付二维码路径:', this.qrImageUrl);
                             this.useLocalQrCode = true;
                         }
                     } catch (error) {
@@ -650,7 +636,7 @@
                 },
 
                 async generateQRCode() {
-                    if ((this.orderInfo.payType === 'Wechat' || this.orderInfo.payType === 'Alipay'|| this.orderInfo.payType === 'Wechat_zs') && this.qrImageUrl) {
+                    if (this.orderInfo.useLocalQrCode === "true" && this.qrImageUrl) {
                         // 使用图片显示，不需要生成canvas二维码
                         console.log('使用图片显示:', this.qrImageUrl);
                         return;
@@ -786,16 +772,10 @@
                 // 处理微信支付二维码图片加载错误
                 handleImageError(event) {
                     console.error('支付二维码图片加载失败:', this.qrImageUrl);
-                    debugger
                     // 尝试备用路径
-                    if (!event.target.dataset.retried) {
-                        if(this.orderInfo.payType == 'Alipay'){
-                            event.target.src = 'assets/qr/alipay/custom.png';
-                            return
-                        }else {
-                            event.target.src = 'assets/qr/wechat/custom.png';
-                            return
-                        }
+                    if (!event.target.dataset.retried && this.orderInfo.useLocalQrCode === 'true') {
+                        event.target.src = `assets/qr/${this.orderInfo.payType}/custom.png`;
+                        return
                     }
                     
                     // 显示错误占位图
