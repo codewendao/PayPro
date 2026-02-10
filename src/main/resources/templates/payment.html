@@ -361,7 +361,7 @@
 
                             <div v-if="paymentStatus == 'pending'" class="qr-code">
                                 <!-- 微信支付显示图片 -->
-                                <img v-if="(orderInfo.payType === 'Wechat' || orderInfo.payType === 'Alipay') && qrImageUrl"
+                                <img v-if="(orderInfo.payType === 'Wechat' || orderInfo.payType === 'Alipay' || orderInfo.payType === 'Wechat_zs') && qrImageUrl"
                                      :src="qrImageUrl" 
                                      class="qr-image" 
                                      alt="微信支付二维码"
@@ -456,6 +456,31 @@
                 <div style="clear: both;"></div>
             </div>
         </div>
+
+        <div v-if="showWechatZsNotice" class="wechat-notice-overlay" @click.self="closeWechatNotice">
+            <div class="wechat-notice-modal">
+                <button class="wechat-notice-close" @click="closeWechatNotice">×</button>
+
+                <div class="wechat-notice-title">请在备注中输入支付标识号</div>
+
+                <div class="wechat-notice-content">
+                    <div class="wechat-notice-text">
+                        支付时请在备注中输入您的订单标识号：
+                        <span class="wechat-paynum">{{ orderInfo.payNum }}</span>
+                    </div>
+                    <div class="wechat-notice-text">
+                        若忘记输入或输入错误可能会造成您支付失败！
+                    </div>
+
+                    <div class="wechat-notice-image">
+                        <img src="assets/images/wxzsremark.png" alt="微信支付备注示例" />
+                    </div>
+                </div>
+
+                <button class="wechat-notice-btn" @click="closeWechatZsNotice">知道了</button>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -472,7 +497,8 @@
                     paymentStatus: 'pending', // pending, success, failed, timeout
                     loading: false, // 修改为false，让DOM立即渲染
                     showWechatNotice: false, // 控制微信支付提示框显示
-                    showAlipayNotice: false // 控制微信支付提示框显示
+                    showAlipayNotice: false, // 控制微信支付提示框显示
+                    showWechatZsNotice: false
 
                 }
             },
@@ -535,6 +561,10 @@
 
                     if (this.orderInfo.payType === 'Alipay') {
                         this.showAlipayNotice = true;
+                    }
+
+                    if (this.orderInfo.payType === 'Wechat_zs') {
+                        this.showWechatZsNotice = true;
                     }
 
                     // 等待QRCode库加载完成
@@ -604,6 +634,11 @@
                             }
                             console.log('微信支付二维码路径:', this.qrImageUrl);
                         }
+                        else if (this.orderInfo.payType === 'Wechat_zs') {
+                            // 微信返回图片路径
+                            this.qrImageUrl = "assets/qr/wechatzs/custom.png";
+                            console.log('赞赏码使用自定义url:', this.qrImageUrl);
+                        }
                     } catch (error) {
                         console.error('创建支付订单失败:', error);
                         this.paymentStatus = 'failed';
@@ -611,7 +646,7 @@
                 },
 
                 async generateQRCode() {
-                    if ((this.orderInfo.payType === 'Wechat' || this.orderInfo.payType === 'Alipay') && this.qrImageUrl) {
+                    if ((this.orderInfo.payType === 'Wechat' || this.orderInfo.payType === 'Alipay'|| this.orderInfo.payType === 'Wechat_zs') && this.qrImageUrl) {
                         // 使用图片显示，不需要生成canvas二维码
                         console.log('使用图片显示:', this.qrImageUrl);
                         return;
@@ -778,6 +813,11 @@
                 // 关闭微信支付提示框
                 closeAlipayNotice() {
                     this.showAlipayNotice = false;
+                },
+
+                // 关闭微信支付提示框
+                closeWechatZsNotice() {
+                    this.showWechatZsNotice = false;
                 }
             }
         });
