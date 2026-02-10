@@ -338,7 +338,7 @@
 <!--                    <a href="history.html" class="nav-tab">📋 捐赠记录</a>-->
                     <a href="help.html" class="nav-tab">❓ 帮助中心</a>
                 </nav>
-                
+
                 <div class="page-content">
                     <div class="payment-page">
                         <div class="payment-header">
@@ -361,10 +361,10 @@
 
                             <div v-if="paymentStatus == 'pending'" class="qr-code">
                                 <!-- 微信支付显示图片 -->
-                                <img v-if="(orderInfo.payType === 'Wechat' || orderInfo.payType === 'Alipay' || orderInfo.payType === 'Wechat_zs') && qrImageUrl"
+                                <img v-if="useLocalQrCode && qrImageUrl"
                                      :src="qrImageUrl" 
                                      class="qr-image" 
-                                     alt="微信支付二维码"
+                                     alt="支付二维码"
                                      @error="handleImageError"
                                      @load="handleImageLoad" />
                                 
@@ -498,7 +498,8 @@
                     loading: false, // 修改为false，让DOM立即渲染
                     showWechatNotice: false, // 控制微信支付提示框显示
                     showAlipayNotice: false, // 控制微信支付提示框显示
-                    showWechatZsNotice: false
+                    showWechatZsNotice: false,
+                    useLocalQrCode: true // 是否使用本地qrcode
 
                 }
             },
@@ -623,6 +624,7 @@
                                 this.qrImageUrl = `assets/qr/alipay/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
                             }
                             console.log('支付宝支付二维码路径:', this.qrImageUrl);
+                            this.useLocalQrCode = true;
                         } else if (this.orderInfo.payType === 'Wechat') {
                             // 微信返回图片路径
                             if (this.orderInfo.customerQr === "true") {
@@ -633,11 +635,13 @@
                                 this.qrImageUrl = `assets/qr/wechat/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
                             }
                             console.log('微信支付二维码路径:', this.qrImageUrl);
+                            this.useLocalQrCode = true;
                         }
                         else if (this.orderInfo.payType === 'Wechat_zs') {
                             // 微信返回图片路径
                             this.qrImageUrl = "assets/qr/wechatzs/custom.png";
                             console.log('赞赏码使用自定义url:', this.qrImageUrl);
+                            this.useLocalQrCode = true;
                         }
                     } catch (error) {
                         console.error('创建支付订单失败:', error);
