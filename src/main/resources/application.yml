@@ -42,7 +42,7 @@ spring:
     testWhileIdle: true
     timeBetweenEvictionRunsMillis: 60000
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://xx.xx.xx.xx:8001/pay?useSSL=false&characterEncoding=utf-8
+    url: jdbc:mysql://xx.xx.xx.xx:8001/paypro?useSSL=false&characterEncoding=utf-8
     username: xxx
     validationQuery: SELECT 1 FROM DUAL
   redis:
