@@ -618,7 +618,6 @@
                         console.log('初始化支付订单:', this.orderInfo);
                         if (this.orderInfo.useLocalQrCode === "true") {
                             // 支付宝返回图片路径
-                            debugger
                             if (this.orderInfo.customerQr === "true") {
                                 // 表示是自定义金额
                                 this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/custom.png`;
