@@ -96,14 +96,28 @@ class HttpUtil {
     }
 }
 
-// 延迟创建全局实例，确保API_CONFIG已加载
-let httpUtil;
+// 全局单例实例
+let httpUtil = null;
 
-// 初始化函数
+// 初始化函数 - 确保只初始化一次
 function initHttpUtil() {
-    if (!httpUtil && typeof API_CONFIG !== 'undefined') {
+    // 检查是否已经初始化
+    if (httpUtil) {
+        return httpUtil;
+    }
+    
+    // 检查API_CONFIG是否已加载
+    if (typeof API_CONFIG === 'undefined') {
+        console.error('API_CONFIG未定义，请确保api-config.js已正确加载');
+        return null;
+    }
+    
+    try {
         httpUtil = new HttpUtil();
-        console.log('HttpUtil初始化成功');
+        console.log('HttpUtil初始化成功（全局单例）');
+    } catch (error) {
+        console.error('HttpUtil初始化失败:', error);
+        httpUtil = null;
     }
     return httpUtil;
 }
@@ -113,13 +127,54 @@ function getHttpUtil() {
     return httpUtil || initHttpUtil();
 }
 
+// 简化的HTTP请求方法，自动处理初始化和错误
+async function httpRequest(endpoint, options = {}) {
+    try {
+        // 确保httpUtil已初始化（单例模式）
+        const util = getHttpUtil();
+        
+        if (!util) {
+            throw new Error('HTTP工具初始化失败');
+        }
+        
+        // 根据请求类型调用相应方法
+        if (options.method === 'GET' || options.method === 'DELETE') {
+            return await util.get(endpoint, options.params);
+        } else {
+            return await util.post(endpoint, options.data);
+        }
+    } catch (error) {
+        console.error('HTTP请求失败:', error);
+        throw error;
+    }
+}
+
+// 便捷的POST请求方法
+async function postRequest(endpoint, data = {}) {
+    return httpRequest(endpoint, {
+        method: 'POST',
+        data: data
+    });
+}
+
+// 便捷的GET请求方法
+async function getRequest(endpoint, params = {}) {
+    return httpRequest(endpoint, {
+        method: 'GET',
+        params: params
+    });
+}
+
 // 导出工具类
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { HttpUtil, getHttpUtil, initHttpUtil };
+    module.exports = { HttpUtil, getHttpUtil, initHttpUtil, httpRequest, postRequest, getRequest };
 } else {
     window.HttpUtil = HttpUtil;
     window.getHttpUtil = getHttpUtil;
     window.initHttpUtil = initHttpUtil;
+    window.httpRequest = httpRequest;
+    window.postRequest = postRequest;
+    window.getRequest = getRequest;
     
     // 在DOM加载完成后初始化
     if (document.readyState === 'loading') {

@@ -3,382 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人支付系统 - 无需签约，全自动收款</title>
+    <title>PayPro - 个人支付系统</title>
     <!-- 引入Vue 3 -->
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <!-- 引入 Remix Icons -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 50px;
-            padding: 40px 0;
-            position: relative;
-        }
-        
+        /* Header & Nav */
         .top-nav {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 24px 0;
         }
-        
-        .btn-top {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+
+        .btn-ghost {
+            color: var(--text-color);
             padding: 10px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
             text-decoration: none;
+            font-size: 0.95rem;
             font-weight: 500;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .btn-top:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
         }
-        
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+
+        .hero {
+            text-align: center;
+            padding: 60px 0 80px;
         }
-        
-        .header .subtitle {
-            font-size: 1.5rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
         }
-        
-        .header .description {
-            font-size: 1.1rem;
-            opacity: 0.8;
+
+        .hero h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
             max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
+            margin: 0 auto 40px;
+            line-height: 1.8;
         }
-        
+
+        /* Features Grid */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
+            gap: 24px;
+            margin-bottom: 80px;
         }
-        
+
         .feature-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            padding: 32px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
         }
-        
+
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: var(--glass-hover-bg);
+            border-color: rgba(255,255,255,0.15);
         }
-        
-        .feature-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-        
-        .feature-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .feature-desc {
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        .highlight {
-            color: #007bff;
-            font-weight: bold;
-        }
-        
-        .action-section {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            text-align: center;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }
-        
-        .action-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .action-desc {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            padding: 20px 50px;
-            font-size: 1.3rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 5px 20px rgba(0,123,255,0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,123,255,0.4);
-        }
-        
-        .payment-methods {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .payment-method {
-            background: #f8f9fa;
-            padding: 15px 25px;
-            border-radius: 25px;
+
+        .feature-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 500;
+            justify-content: center;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+            font-size: 1.75rem;
         }
-        
-        .advantages {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-        
-        .advantage {
-            background: rgba(255,255,255,0.1);
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
             color: white;
-            padding: 20px;
-            border-radius: 10px;
+        }
+
+        .feature-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Stats/Advantages Row */
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 40px;
+            margin-bottom: 80px;
             text-align: center;
         }
-        
-        .advantage-icon {
+
+        .stat-item h3 {
             font-size: 2rem;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .footer {
-            text-align: center;
             color: white;
-            margin-top: 50px;
-            opacity: 0.8;
+            margin-bottom: 8px;
         }
-        
+
+        .stat-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Abstract decoration behind CTA */
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .cta-desc {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .payment-logos {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            opacity: 0.7;
+        }
+
+        .payment-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .payment-logo i {
+            font-size: 2rem;
+            color: white;
+        }
+
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .header .subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .action-section {
-                padding: 30px 20px;
-            }
-            
-            .action-title {
-                font-size: 2rem;
-            }
-            
-            .payment-methods {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .top-nav {
-                position: static;
-                margin-bottom: 20px;
-            }
+            .hero h1 { font-size: 2.5rem; }
+            .cta-title { font-size: 2rem; }
+            .stats-row { flex-direction: column; gap: 40px; }
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div class="container">
-            <div class="header">
-                <div class="top-nav">
-                    <a href="recharge.html" class="btn-top">💰 体验支付</a>
-                </div>
-                
-                <h1>💰 个人支付系统</h1>
-                <div class="subtitle">无需签约第三方 · 全自动收款解决方案</div>
-                <div class="description">
-                    专为个人和小微商户设计的智能收款系统，支持支付宝、微信支付多种方式，
-                    实现全自动/半自动收款，无需复杂的企业资质和第三方签约流程
-                </div>
-            </div>
-            
-            <div class="features">
-                <div class="feature-card">
-                    <span class="feature-icon">🚀</span>
-                    <div class="feature-title">无需签约</div>
-                    <div class="feature-desc">
-                        <span class="highlight">零门槛接入</span><br>
-                        无需企业资质，无需繁琐的第三方支付签约流程，
-                        没有中间商赚差价！每笔交易金额实时直达您个人账户，不再忍受第三方抽取手续费。
-                        市面上最稳定安全方案。一张二维收款码搞定收款。
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <span class="feature-icon">🤖</span>
-                    <div class="feature-title">全自动收款</div>
-                    <div class="feature-desc">
-                        <span class="highlight">官方渠道</span><br>
-                        自动回调，
-                        实时更新订单状态，无需人工干预
-                    </div>
-                </div>
+<div id="app">
+    <div class="container">
+        <!-- Nav -->
+        <div class="top-nav">
+            <a href="recharge.html" class="btn-ghost">
+                <i class="ri-wallet-3-line"></i>
+                体验支付
+            </a>
+        </div>
 
-                <div class="feature-card">
-                    <span class="feature-icon">🔧</span>
-                    <div class="feature-title">半自动模式</div>
-                    <div class="feature-desc">
-                        <span class="highlight">灵活切换</span><br>
-                        支持手动确认模式，适合对账要求较高的场景，
-                        确保每笔交易准确无误
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <span class="feature-icon">💳</span>
-                    <div class="feature-title">多种支付方式</div>
-                    <div class="feature-desc">
-                        <span class="highlight">全平台覆盖</span><br>
-                        支持支付宝、微信支付，
-                        满足不同用户的支付习惯
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <span class="feature-icon">🔒</span>
-                    <div class="feature-title">安全可靠</div>
-                    <div class="feature-desc">
-                        <span class="highlight">不依赖第三方</span><br>
-                        不依赖第三方,自主可控
-                        无需任何第三方SDK、无需挂机监控APP
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <span class="feature-icon">📊</span>
-                    <div class="feature-title">实时统计</div>
-                    <div class="feature-desc">
-                        <span class="highlight">数据可视化</span><br>
-                        提供详细的收款记录和统计报表，
-                        帮助您更好地管理和分析收款情况
-                    </div>
-                </div>
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">无需签约 · 即刻收款</div>
+            <h1>个人收款<br>从未如此简单</h1>
+            <p class="subtitle">
+                专为个人开发者和小微商户打造的智能收款系统。<br>
+                无需营业执照，无需第三方签约，资金直达您的个人账户。
+            </p>
+            <a href="recharge.html" class="btn btn-primary">
+                立即开始收款 <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="glass stats-row">
+            <div class="stat-item">
+                <h3>5分钟</h3>
+                <p>快速部署</p>
             </div>
-            
-            <div class="action-section">
-                <div class="action-title">🎯 立即开始收款</div>
-                <div class="action-desc">
-                    只需几分钟即可部署完成，马上体验全自动收款的便捷！
-                </div>
-                
-                <div class="payment-methods">
-                    <div class="payment-method">
-                        <span>🔵</span>
-                        <span>支付宝转账</span>
-                    </div>
-                    <div class="payment-method">
-                        <span>🟢</span>
-                        <span>微信支付</span>
-                    </div>
-                    <div class="payment-method">
-                        <span>💙</span>
-                        <span>支付宝扫码</span>
-                    </div>
-                </div>
-                
-                <a href="recharge.html" class="btn-primary">
-                    🚀 体验支付
-                </a>
+            <div class="stat-item">
+                <h3>0%</h3>
+                <p>平台费率</p>
             </div>
-            
-            <div class="advantages">
-                <div class="advantage">
-                    <span class="advantage-icon">⚡</span>
-                    <div><strong>快速部署</strong><br>5分钟完成部署</div>
-                </div>
-                <div class="advantage">
-                    <span class="advantage-icon">💰</span>
-                    <div><strong>零手续费</strong><br>无额外费用</div>
-                </div>
-                <div class="advantage">
-                    <span class="advantage-icon">🔄</span>
-                    <div><strong>实时到账</strong><br>秒级确认</div>
-                </div>
-                <div class="advantage">
-                    <span class="advantage-icon">📱</span>
-                    <div><strong>移动友好</strong><br>全平台适配</div>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p>&copy; 个人收款系统 - 让收款变得简单高效</p>
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>资金安全</p>
             </div>
         </div>
-    </div>
 
-    <script>
+        <!-- Features -->
+        <div class="features">
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-shield-check-line"></i>
+                </div>
+                <div class="feature-title">无需签约</div>
+                <div class="feature-desc">
+                    告别繁琐的企业资质审核。无需第三方支付签约流程，零门槛接入，个人也能拥有专业收款能力。
+                </div>
+            </div>
+
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-robot-2-line"></i>
+                </div>
+                <div class="feature-title">支持自动回调</div>
+                <div class="feature-desc">
+                    自动回调， 实时更新订单状态，无需人工干预.
+                </div>
+            </div>
+
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-toggle-line"></i>
+                </div>
+                <div class="feature-title">双模式切换</div>
+                <div class="feature-desc">
+                    支持全自动/半自动模式灵活切换。既能享受自动化的便捷，又能满足高精度对账需求。
+                </div>
+            </div>
+
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-smartphone-line"></i>
+                </div>
+                <div class="feature-title">全平台支持</div>
+                <div class="feature-desc">
+                    完美支持支付宝、微信支付。无论是扫码支付还是转账模式，都能轻松应对。
+                </div>
+            </div>
+
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-lock-2-line"></i>
+                </div>
+                <div class="feature-title">私有化部署</div>
+                <div class="feature-desc">
+                    数据完全掌握在自己手中。不依赖第三方SaaS平台，无需挂机APP，安全可控。
+                </div>
+            </div>
+
+            <div class="glass feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="ri-pie-chart-line"></i>
+                </div>
+                <div class="feature-title">数据可视化</div>
+                <div class="feature-desc">
+                    内置强大的数据统计仪表盘。实时掌握流水情况，让每一笔收入都清晰可见。
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="glass cta-section">
+            <h2 class="cta-title">准备好开始了吗？</h2>
+            <p class="cta-desc">
+                加入众多开发者的选择，体验最纯粹的支付解决方案。
+            </p>
+
+            <a href="recharge.html" class="btn btn-primary">
+                <i class="ri-rocket-line"></i>
+                启动演示
+            </a>
+
+            <div class="payment-logos">
+                <div class="payment-logo">
+                    <i class="ri-alipay-fill"></i>
+                    <span>Alipay</span>
+                </div>
+                <div class="payment-logo">
+                    <i class="ri-wechat-pay-fill"></i>
+                    <span>WeChat</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 PayPro System. Designed for Creators.</p>
+        </div>
+    </div>
+</div>
+
+<script>
         const { createApp } = Vue;
 
         const app = createApp({
             data() {
                 return {
-                    // 页面数据可以在这里添加
+                    // Future state management
                 }
             },
-            methods: {
-                // 页面方法可以在这里添加
+            mounted() {
+
             }
         });
 

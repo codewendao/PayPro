@@ -72,10 +72,13 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 paypro:
+  alipayCustomQrUrl: https://qr.alipay.com/fkx17492eze99maemka1u81
+  alipayUserId: 2088122989840531
   indexTitle: PayPro个人收款系统 # 网站首页标题
   name: codewendao
   title: PayPro个人收款系统 # 邮件标题
   site: http://localhost:8889
+  mobile: xxxxxx
   email:
     receiver: 958625993@qq.com
     sender: codewendao@163.com

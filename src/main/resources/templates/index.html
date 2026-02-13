@@ -3,56 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>充值中心 - 首页</title>
+    <meta name="description" content="PayPro个人支付系统 - 正在跳转至首页">
+    <meta name="keywords" content="支付系统,个人支付,在线收款">
+    <meta http-equiv="refresh" content="0;url=home.html">
+    <link rel="canonical" href="home.html">
+    <title>PayPro - 跳转中</title>
+    <!-- 引入Vue 3 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js" defer></script>
+    <!-- 引入 Remix Icons -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .page-wrap {
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-wrap::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
         }
         
         .container {
+            max-width: 500px;
+            width: 90%;
             text-align: center;
-            color: white;
+        }
+        
+        .glass-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            padding: 48px 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all .3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 32px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .logo i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .loading-container {
+            margin: 40px 0;
         }
         
         .loading {
             display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top: 5px solid white;
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--text-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: #A78BFA;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        .message {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .countdown {
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .3s ease;
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(99,102,241,0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(99,102,241,0.3);
+        }
+        
+        .btn-ghost {
+            color: var(--text-color);
+            padding: 12px 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .footer {
+            margin-top: 32px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 32px 24px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .logo i {
+                font-size: 2.5rem;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary,
+            .btn-ghost {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="loading"></div>
-        <h2>正在跳转页面...</h2>
+    <div id="app">
+        <div class="page-wrap">
+            <div class="container">
+                <div class="glass-card">
+                    <div class="hero-badge">系统启动中</div>
+                    
+                    <div class="logo">
+                        <i class="ri-rocket-line"></i>
+                        PayPro
+                    </div>
+                    
+                    <div class="loading-container">
+                        <div class="loading"></div>
+                        <div class="message">正在为您准备最佳体验</div>
+                        <div class="subtitle">个人支付从未如此简单</div>
+                        <div class="countdown" id="countdown">3秒后自动跳转</div>
+                    </div>
+                    
+                    <div class="actions">
+                        <a href="home.html" class="btn btn-primary">
+                            <i class="ri-arrow-right-line"></i>
+                            立即前往
+                        </a>
+                        <a href="recharge.html" class="btn btn-ghost">
+                            <i class="ri-wallet-3-line"></i>
+                            直接支付
+                        </a>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>&copy; 2026 PayPro System. Designed for Creators.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
+    <noscript>
+        <div style="text-align: center; color: white; margin-top: 20px;">
+            <p>您的浏览器不支持JavaScript，请手动<a href="home.html" style="color: white; text-decoration: underline;">点击这里</a>跳转</p>
+        </div>
+    </noscript>
+    
     <script>
-        // 自动跳转到首页
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof Vue === 'undefined') {
+            console.error('Vue未加载，请检查网络连接');
+            return;
+        }
+
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    countdown: 1
+                }
+            },
+            mounted() {
+                console.log('PayPro Redirect Page Loaded');
+                this.startCountdown();
+            },
+            methods: {
+                startCountdown() {
+                    const countdownElement = document.getElementById('countdown');
+                    if (countdownElement) {
+                        countdownElement.textContent = '即将跳转...';
+                    }
+                    // 几乎立即跳转，不显示倒计时
+                }
+            }
+        }).mount('#app');
+    });
+    </script>
+    
+    <script>
+        // 自动跳转到首页（几乎立即跳转）
         setTimeout(() => {
             window.location.href = 'home.html';
-        }, 1000);
+        }, 100);
     </script>
 </body>
 </html>

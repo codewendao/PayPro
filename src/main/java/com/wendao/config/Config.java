@@ -28,6 +28,9 @@ public class Config implements WebMvcConfigurer {
             viewResolver.addStaticVariable("title",payConfig.getTitle());
             viewResolver.addStaticVariable("indexTitle",payConfig.getIndexTitle());
             viewResolver.addStaticVariable("site",payConfig.getSite());
+            viewResolver.addStaticVariable("alipayUserId",payConfig.getAlipayUserId());
+            viewResolver.addStaticVariable("alipayCustomQrUrl",payConfig.getAlipayCustomQrUrl());
+            viewResolver.addStaticVariable("mobile",payConfig.getMobile());
         }
     }
 

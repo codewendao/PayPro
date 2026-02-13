@@ -3,295 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>帮助中心</title>
-    <!-- 引入Vue 3 -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <title>帮助中心 - PayPro</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js" defer></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <script src="/assets/js/api-config.js"></script>
+    <script src="/assets/js/http-util.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .main-content {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .nav-tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            color: #666;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .nav-tab:hover {
-            background: #e9ecef;
-            color: #333;
-        }
-        
-        .nav-tab.active {
-            background: #007bff;
-            color: white;
-        }
-        
-        .page-content {
-            padding: 30px;
-            min-height: 500px;
-        }
-        
-        .help-section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border-left: 4px solid #007bff;
-            transition: all 0.3s ease;
-        }
-        
-        .help-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .help-section h3 {
-            margin-bottom: 15px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .help-section p,
-        .help-section li {
-            line-height: 1.8;
-            color: #555;
-            margin-bottom: 8px;
-        }
-        
-        .help-section ul {
-            padding-left: 20px;
-        }
-        
-        .contact-info {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            text-align: center;
-            border-radius: 12px;
-            padding: 30px;
-            margin-top: 40px;
-        }
-        
-        .contact-info h3 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .contact-item {
-            display: inline-block;
-            margin: 10px 20px;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .contact-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-        
-        .faq-item {
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .faq-question {
-            background: #007bff;
-            color: white;
-            padding: 15px 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .faq-question:hover {
-            background: #0056b3;
-        }
-        
-        .faq-answer {
-            background: white;
-            padding: 20px;
-            border-left: 3px solid #007bff;
-            display: none;
-        }
-        
-        .faq-answer.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-            to {
-                opacity: 1;
-                max-height: 200px;
-            }
-        }
-        
-        .footer {
-            text-align: center;
-            color: white;
-            margin-top: 30px;
-            opacity: 0.8;
+        .page-wrap { padding-top: 40px; padding-bottom: 60px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .title { font-size: 2.5rem; font-weight: 800; margin-bottom: 12px; }
+        .subtitle { font-size: 1.1rem; color: var(--text-muted); }
+        .glass-card { background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; gap: 12px; margin-bottom: 24px; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.05); }
+        .nav-tab { flex: 1; padding: 14px 20px; text-align: center; cursor: pointer; border: none; background: transparent; font-size: 16px; font-weight: 500; color: var(--text-muted); transition: all .3s ease; border-radius: 8px; text-decoration: none; }
+        .nav-tab:hover { background: rgba(255,255,255,0.08); color: var(--text-color); }
+        .nav-tab.active { background: var(--primary-color); color: white; }
+        .page-content { min-height: 600px; }
+        .section-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 32px; text-align: center; color: var(--text-color); }
+        .help-grid { display: grid; gap: 24px; margin-bottom: 40px; }
+        .help-card { background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); padding: 28px; transition: all .3s ease; border-left: 4px solid var(--primary-color); }
+        .help-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .help-card h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; color: var(--text-color); display: flex; align-items: center; gap: 12px; }
+        .help-card p, .help-card li { line-height: 1.7; color: var(--text-muted); margin-bottom: 12px; }
+        .help-card ul { padding-left: 24px; }
+        .help-card li { margin-bottom: 8px; }
+        .faq-section { margin: 40px 0; }
+        .faq-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); }
+        .faq-question { background: rgba(255,255,255,0.05); color: var(--text-color); padding: 20px 24px; cursor: pointer; font-weight: 600; transition: all .3s ease; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .faq-question:hover { background: rgba(255,255,255,0.08); }
+        .faq-question.active { background: var(--primary-color); color: white; border-bottom: none; }
+        .faq-answer { padding: 0 24px; max-height: 0; overflow: hidden; transition: all .3s ease; }
+        .faq-answer.active { padding: 24px; max-height: 300px; }
+        .contact-card { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(79,70,229,0.2)); border-radius: 16px; border: 1px solid rgba(99,102,241,0.3); padding: 32px; text-align: center; margin-top: 40px; }
+        .contact-card h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; color: var(--text-color); }
+        .contact-info { display: inline-block; padding: 12px 24px; background: rgba(255,255,255,0.05); border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); transition: all .3s ease; }
+        .contact-info:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+        .icon { font-size: 1.5rem; }
+        @media (max-width: 768px) {
+            .page-wrap { padding-top: 24px; padding-bottom: 40px; }
+            .title { font-size: 2rem; }
+            .nav-tabs { flex-direction: column; gap: 8px; }
+            .nav-tab { padding: 12px 16px; }
+            .page-content { padding: 20px; }
+            .section-title { font-size: 1.5rem; margin-bottom: 24px; }
+            .help-card { padding: 20px; }
+            .help-card h3 { font-size: 1.1rem; }
+            .faq-question { padding: 16px 20px; }
+            .faq-answer.active { padding: 20px; }
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div class="container">
-            <div class="header">
-                <h1>💳 充值中心</h1>
-                <p>安全、快捷的个人支付系统</p>
-            </div>
-            
-            <div class="main-content">
-                <nav class="nav-tabs">
-                    <a href="recharge.html" class="nav-tab">💰 充值</a>
-<!--                    <a href="history.html" class="nav-tab">📋 充值记录</a>-->
-                    <a href="help.html" class="nav-tab active">❓ 帮助中心</a>
-                </nav>
-                
-                <div class="page-content">
-                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">❓ 帮助中心</h2>
+<div id="app">
+    <div class="container page-wrap">
+        <div class="header">
+            <h1 class="title">
+                <i class="ri-question-line"></i> 帮助中心
+            </h1>
+            <p class="subtitle">解决您的支付疑问，提供专业的技术支持</p>
+        </div>
+
+        <div class="glass-card">
+            <nav class="nav-tabs">
+                <a href="recharge.html" class="nav-tab">
+                    <i class="ri-credit-card-line"></i> 捐赠
+                </a>
+                <a href="history.html" class="nav-tab">
+                    <i class="ri-history-line"></i> 捐赠记录
+                </a>
+                <a href="help.html" class="nav-tab active">
+                    <i class="ri-question-line"></i> 帮助中心
+                </a>
+            </nav>
+
+            <div class="page-content">
+                <h2 class="section-title">
+                    <i class="ri-question-circle-line"></i> 常见问题
+                </h2>
+
+                <div class="help-grid">
+                    <div class="help-card">
+                        <h3>
+                            <i class="ri-shield-check-line icon"></i> 支付安全
+                        </h3>
+                        <p>
+                            我们不依赖任何第三方平台，自助完成支付。所有支付都通过官方支付渠道处理，资金安全有保障。
+                        </p>
+                    </div>
+
+                    <div class="help-card">
+                        <h3>
+                            <i class="ri-payment-line icon"></i> 支付方式说明
+                        </h3>
+                        <ul>
+                            <li><strong style="color: var(--text-color);">支付宝转账：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡</li>
+                            <li><strong style="color: var(--text-color);">微信支付：</strong>打开微信APP扫描二维码完成支付，支持零钱、银行卡等付款方式</li>
+                            <li><strong style="color: var(--text-color);">支付宝扫码：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-card">
+                        <h3>
+                            <i class="ri-error-warning-line icon"></i> 支付失败处理
+                        </h3>
+                        <ul>
+                            <li>检查网络连接是否正常</li>
+                            <li>确认支付账户余额是否充足</li>
+                            <li>尝试刷新页面重新支付</li>
+                            <li>更换其他支付方式</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-section">
+                    <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 24px; color: var(--text-color); text-align: center;">
+                        <i class="ri-question-answer-line"></i> 常见问题解答
+                    </h3>
                     
-                    <div style="max-width: 900px; margin: 0 auto;">
-                        <div class="help-section">
-                            <h3>🔒 支付安全</h3>
-                            <p>
-                                不依赖任何第三方平台，自助完成支付。所有支付都通过官方支付渠道处理，资金安全有保障。
-                            </p>
+                    <div class="faq-item" v-for="(faq, index) in faqList" :key="index">
+                        <div class="faq-question" :class="{ active: faq.isOpen }" @click="toggleFaq(index)">
+                            <span>{{ faq.question }}</span>
+                            <i :class="['ri', faq.isOpen ? 'ri-chevron-up' : 'ri-chevron-down']"></i>
                         </div>
-                        
-                        <div class="help-section">
-                            <h3>💰 支付方式说明</h3>
-                            <ul>
-                                <li><strong>支付宝转账：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡、花呗等多种付款方式</li>
-                                <li><strong>微信支付：</strong>打开微信APP扫描二维码完成支付，支持零钱、银行卡等付款方式</li>
-                                <li><strong>支付宝扫码：</strong>打开支付宝APP扫描二维码完成支付，支持余额、银行卡、花呗等多种付款方式</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="help-section">
-                            <h3>❌ 支付失败处理</h3>
-                            <ul>
-                                <li>检查网络连接是否正常</li>
-                                <li>确认支付账户余额是否充足</li>
-                                <li>尝试刷新页面重新支付</li>
-                                <li>更换其他支付方式</li>
-                                <li>如仍无法解决，请联系客服</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="help-section">
-                            <h3>💡 常见问题</h3>
-                            <div class="faq-item" v-for="(faq, index) in faqList" :key="index">
-                                <div class="faq-question" @click="toggleFaq(index)">
-                                    <span>{{ faq.question }}</span>
-                                    <span>{{ faq.isOpen ? '−' : '+' }}</span>
-                                </div>
-                                <div class="faq-answer" :class="{ active: faq.isOpen }">
-                                    <p>{{ faq.answer }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info">
+                        <div class="faq-answer" :class="{ active: faq.isOpen }">
+                            <p>{{ faq.answer }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="footer">
-                <p>&copy; 充值中心 - 安全可靠的支付服务</p>
+
+                <div class="contact-card">
+                    <h3>
+                        <i class="ri-headset-line"></i> 联系客服
+                    </h3>
+                    <div class="contact-info">
+                        <strong>邮箱支持：</strong>[[${supportMail}]]
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="footer">
+            <p>&copy; 2026 PayPro 捐赠中心. 安全可靠的支付服务</p>
+        </div>
     </div>
+</div>
 
-    <script>
-        const { createApp } = Vue;
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    if (typeof Vue === 'undefined') {
+        console.error('Vue未加载，请检查网络连接');
+        return;
+    }
 
-        const app = createApp({
-            data() {
-                return {
-                    faqList: [
-                        {
-                            question: '支付后多久到账？',
-                            answer: '正常情况下是秒到账，因为使用的是官方的渠道。',
-                            isOpen: false
-                        },
-                        {
-                            question: '支付有手续费吗？',
-                            answer: '平台不收取任何充值手续费。微信和支付宝转账付款是直接到你本人的余额的，不会产生手续费，但是支付宝扫码会产生手续费，大约是0.6%。',
-                            isOpen: false
-                        }
-                    ]
-                }
-            },
-            methods: {
-                toggleFaq(index) {
-                    this.faqList[index].isOpen = !this.faqList[index].isOpen;
-                }
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                faqList: [
+                    {
+                        question: '支付后多久到账？',
+                        answer: '正常情况下是秒到账，因为使用的是官方的渠道。系统会实时处理您的支付请求，一旦支付成功，资金会立即到账。',
+                        isOpen: false
+                    },
+                    {
+                        question: '支付有手续费吗？',
+                        answer: '平台不收取任何充值手续费。微信和支付宝转账付款是直接到你本人的余额的，不会产生手续费，但是支付宝扫码会产生手续费，大约是0.6%。',
+                        isOpen: false
+                    },
+                    {
+                        question: '如何查询我的支付记录？',
+                        answer: '您可以在"捐赠记录"页面查看所有的支付历史，包括支付状态、金额、时间等详细信息。系统会保存您的所有支付记录，方便您随时查询。',
+                        isOpen: false
+                    },
+                    {
+                        question: '支付限额是多少？',
+                        answer: '支付限额取决于您选择的支付方式和银行/支付平台的限制。一般情况下，支付宝和微信支付的单笔限额为5000元，单日限额为20000元。具体限额请参考您的支付账户设置。',
+                        isOpen: false
+                    }
+                ]
             }
-        });
-
-        app.mount('#app');
-    </script>
+        },
+        methods: {
+            toggleFaq(index) {
+                this.faqList[index].isOpen = !this.faqList[index].isOpen;
+            }
+        }
+    }).mount('#app');
+});
+</script>
 </body>
 </html>

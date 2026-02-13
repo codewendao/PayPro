@@ -49,6 +49,22 @@ public class PayProConfig implements WebMvcConfigurer {
     private String downloadUrl;
 
     /**
+     * 阿里的用户id
+     * */
+    private String alipayUserId;
+
+    /**
+     * 阿里的自定义收款码
+     * */
+    private String alipayCustomQrUrl;
+
+    /**
+     * mobile
+     * */
+    private String mobile;
+
+
+    /**
      * 邮箱配置内部类
      */
     @Data

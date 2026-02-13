@@ -3,253 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>捐赠记录</title>
+    <title>捐赠记录 - PayPro</title>
     <!-- 引入Vue 3 -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js" defer></script>
+    <!-- 引入图标库 (使用国内CDN) -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <!-- 引入公共样式 -->
+    <link rel="stylesheet" href="/css/common.css">
     <!-- 引入API配置 -->
-    <script src="assets/js/api-config.js"></script>
+    <script src="/assets/js/api-config.js"></script>
     <!-- 引入HTTP工具 -->
-    <script src="assets/js/http-util.js"></script>
+    <script src="/assets/js/http-util.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .main-content {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .nav-tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            color: #666;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .nav-tab:hover {
-            background: #e9ecef;
-            color: #333;
-        }
-        
-        .nav-tab.active {
-            background: #007bff;
-            color: white;
-        }
-        
-        .page-content {
-            padding: 30px;
-            min-height: 500px;
-        }
-        
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .history-table th,
-        .history-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .history-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .history-table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .state-success {
-            color: #28a745;
-            font-weight: 600;
-        }
-        
-        .state-pending {
-            color: #ffc107;
-            font-weight: 600;
-        }
-        
-        .state-failed {
-            color: #dc3545;
-            font-weight: 600;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-        
-        .empty-state .icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        /* 分页样式 */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 30px;
-            gap: 10px;
-        }
-
-        .pagination button {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pagination button:hover:not(:disabled) {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .page-info {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .page-size-selector {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .page-size-selector select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .footer {
-            text-align: center;
-            color: white;
-            margin-top: 30px;
-            opacity: 0.8;
-        }
-
+        .page-wrap { padding-top: 40px; padding-bottom: 60px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .title { font-size: 2.5rem; font-weight: 800; margin-bottom: 12px; }
+        .subtitle { font-size: 1.1rem; color: var(--text-muted); }
+        .glass-card { background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; gap: 12px; margin-bottom: 24px; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.05); }
+        .nav-tab { flex: 1; padding: 14px 20px; text-align: center; cursor: pointer; border: none; background: transparent; font-size: 16px; font-weight: 500; color: var(--text-muted); transition: all .3s ease; border-radius: 8px; text-decoration: none; }
+        .nav-tab:hover { background: rgba(255,255,255,0.08); color: var(--text-color); }
+        .nav-tab.active { background: var(--primary-color); color: white; }
+        .page-content { min-height: 500px; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; text-align: center; color: var(--text-color); }
+        .table-wrapper { overflow-x: auto; margin: 24px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
+        .history-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.03); }
+        .history-table th, .history-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .history-table th { background: rgba(255,255,255,0.05); font-weight: 600; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .history-table tr:hover { background: rgba(255,255,255,0.04); }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+        .status-success { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .status-pending { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .status-failed { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .empty-state { text-align: center; padding: 80px 24px; color: var(--text-muted); }
+        .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
+        .empty-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: var(--text-color); }
+        .empty-desc { font-size: 1rem; margin-bottom: 24px; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 32px 0; flex-wrap: wrap; }
+        .page-btn { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text-color); border-radius: 8px; cursor: pointer; transition: all .2s ease; font-size: 0.9rem; }
+        .page-btn:hover:not(:disabled) { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-info { padding: 8px 16px; color: var(--text-muted); font-size: 0.9rem; }
+        .page-size-selector { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: flex-end; }
+        .page-size-selector select { padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text-color); border-radius: 8px; font-size: 0.9rem; }
+        .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; color: var(--text-muted); }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .stats-card { background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 20px; margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); margin-bottom: 4px; }
+        .stat-label { font-size: 0.9rem; color: var(--text-muted); }
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+        .filter-btn { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text-color); border-radius: 8px; cursor: pointer; transition: all .2s ease; font-size: 0.9rem; }
+        .filter-btn.active { background: var(--primary-color); border-color: var(--primary-color); color: white; }
         @media (max-width: 768px) {
-            .history-table {
-                font-size: 14px;
-            }
-
-            .history-table th,
-            .history-table td {
-                padding: 10px 8px;
-            }
-
-            .pagination {
-                flex-wrap: wrap;
-            }
+            .page-wrap { padding-top: 24px; padding-bottom: 40px; }
+            .title { font-size: 2rem; }
+            .nav-tabs { flex-direction: column; gap: 8px; }
+            .nav-tab { padding: 12px 16px; }
+            .table-wrapper { border-radius: 8px; }
+            .history-table th, .history-table td { padding: 12px 16px; font-size: 0.9rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-bar { justify-content: center; }
         }
     </style>
 </head>
 <body>
 <div id="app">
-    <div class="container">
+    <div class="container page-wrap">
         <div class="header">
-            <h1>💳 捐赠中心</h1>
-            <p>安全、快捷的在线捐赠服务</p>
+            <h1 class="title">
+                <i class="ri-wallet-3-line"></i> 捐赠中心
+            </h1>
+            <p class="subtitle">安全、便捷的在线捐赠服务</p>
         </div>
 
-        <div class="main-content">
+        <div class="glass-card">
             <nav class="nav-tabs">
-                <a href="recharge.html" class="nav-tab">💰 捐赠</a>
-                <a href="history.html" class="nav-tab active">📋 捐赠记录</a>
-                <a href="help.html" class="nav-tab">❓ 帮助中心</a>
+                <a href="recharge.html" class="nav-tab">
+                    <i class="ri-credit-card-line"></i> 捐赠
+                </a>
+                <a href="history.html" class="nav-tab active">
+                    <i class="ri-history-line"></i> 捐赠记录
+                </a>
+                <a href="help.html" class="nav-tab">
+                    <i class="ri-question-line"></i> 帮助中心
+                </a>
             </nav>
 
             <div class="page-content">
-                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">📋 捐赠记录</h2>
+                <h2 class="section-title">
+                    <i class="ri-list-check"></i> 捐赠记录
+                </h2>
+
+
 
                 <!-- 每页显示数量选择器 -->
-                <div class="page-size-selector" v-if="rechargeHistory.length > 0">
-                    <span>每页显示：</span>
+                <div class="page-size-selector" v-if="total > 0">
+                    <span style="color: var(--text-muted);">每页显示：</span>
                     <select v-model="pageSize" @change="loadRechargeHistory(1)">
                         <option value="5">5条</option>
                         <option value="10">10条</option>
@@ -258,184 +110,234 @@
                     </select>
                 </div>
 
+                <!-- 加载状态 -->
                 <div v-if="loading" class="loading">
                     <div class="loading-spinner"></div>
-                    <p>加载中...</p>
+                    <p>加载中，请稍候...</p>
                 </div>
 
+                <!-- 空状态 -->
                 <div v-else-if="rechargeHistory.length === 0" class="empty-state">
-                    <div class="icon">📭</div>
-                    <h3>暂无捐赠记录</h3>
-                    <p>您还没有任何捐赠记录</p>
-                    <a href="recharge.html" style="color: #007bff; text-decoration: none; margin-top: 15px; display: inline-block;">立即捐赠 →</a>
+                    <div class="empty-icon">
+                        <i class="ri-inbox-line"></i>
+                    </div>
+                    <h3 class="empty-title">暂无捐赠记录</h3>
+                    <p class="empty-desc">您还没有任何捐赠记录</p>
+                    <a href="recharge.html" class="btn btn-primary">
+                        <i class="ri-credit-card-line"></i> 立即捐赠
+                    </a>
                 </div>
 
-                <template v-else>
+                <!-- 捐赠记录表格 -->
+                <div v-else class="table-wrapper">
                     <table class="history-table">
                         <thead>
-                        <tr>
-                            <th>订单号</th>
-                            <th>捐赠金额</th>
-                            <th>支付方式</th>
-                            <th>状态</th>
-                            <th>时间</th>
-                        </tr>
+                            <tr>
+                                <th>订单号</th>
+                                <th>捐赠金额</th>
+                                <th>支付方式</th>
+                                <th>状态</th>
+                                <th>捐赠时间</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="record in rechargeHistory" :key="record.id">
-                            <td>{{ record.id }}</td>
-                            <td style="font-weight: bold; color: #007bff;">￥{{ record.money }}</td>
-                            <td>{{ getPayTypeText(record.payType) }}</td>
-                            <td :class="getStateClass(record.state)">
-                                {{ getStateText(record.state) }}
-                            </td>
-                            <td>{{ formatTime(record.createTime) }}</td>
-                        </tr>
+                            <tr v-for="record in rechargeHistory" :key="record.id">
+                                <td>{{ record.id }}</td>
+                                <td style="font-weight: 600; color: var(--primary-color);">￥{{ record.money }}</td>
+                                <td>{{ getPayTypeText(record.payType) }}</td>
+                                <td>
+                                    <span :class="['status-badge', getStatusClass(record.state)]">
+                                        <i :class="getStatusIcon(record.state)"></i>
+                                        {{ getStatusText(record.state) }}
+                                    </span>
+                                </td>
+                                <td>{{ formatTime(record.createTime) }}</td>
+                            </tr>
                         </tbody>
                     </table>
+                </div>
 
-                    <!-- 分页控件 -->
-                    <div class="pagination">
-                        <button
-                                @click="loadRechargeHistory(1)"
-                                :disabled="current === 1">
-                            首页
-                        </button>
-                        <button
-                                @click="loadRechargeHistory(current - 1)"
-                                :disabled="current === 1">
-                            上一页
-                        </button>
+                <!-- 分页控件 -->
+                <div v-if="total > 0" class="pagination">
+                    <button 
+                        class="page-btn" 
+                        @click="loadRechargeHistory(1)"
+                        :disabled="currentPage === 1"
+                    >
+                        <i class="ri-arrow-left-double-line"></i> 首页
+                    </button>
+                    <button 
+                        class="page-btn" 
+                        @click="loadRechargeHistory(currentPage - 1)"
+                        :disabled="currentPage === 1"
+                    >
+                        <i class="ri-arrow-left-line"></i> 上一页
+                    </button>
+                    
+                    <span class="page-info">
+                        第 {{ currentPage }} 页 / 共 {{ totalPages }} 页
+                    </span>
+                    
+                    <button 
+                        class="page-btn" 
+                        @click="loadRechargeHistory(currentPage + 1)"
+                        :disabled="currentPage >= totalPages"
+                    >
+                        下一页 <i class="ri-arrow-right-line"></i>
+                    </button>
+                    <button 
+                        class="page-btn" 
+                        @click="loadRechargeHistory(totalPages)"
+                        :disabled="currentPage >= totalPages"
+                    >
+                        末页 <i class="ri-arrow-right-double-line"></i>
+                    </button>
+                </div>
 
-                        <span class="page-info">
-                                第 {{ current }} 页 / 共 {{ pages }} 页
-                            </span>
-
-                        <button
-                                @click="loadRechargeHistory(current + 1)"
-                                :disabled="current === pages">
-                            下一页
-                        </button>
-                        <button
-                                @click="loadRechargeHistory(pages)"
-                                :disabled="current === pages">
-                            末页
-                        </button>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 30px; color: #666;">
-                        <p>💡 提示：共 {{ total }} 条记录，当前显示第 {{ (current - 1) * pageSize + 1 }} - {{ Math.min(current * pageSize, total) }} 条</p>
-                    </div>
-                </template>
+                <!-- 分页信息 -->
+                <div v-if="total > 0" style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 0.9rem;">
+                    <p>
+                        <i class="ri-information-line"></i> 共 {{ total }} 条记录，当前显示第 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, total) }} 条
+                    </p>
+                </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>&copy; 捐赠中心 - 安全可靠的支付服务</p>
+            <p>&copy; 2026 PayPro 捐赠中心. 安全可靠的支付服务</p>
         </div>
     </div>
 </div>
 
 <script>
-        const { createApp } = Vue;
+// 优化页面加载速度
+window.addEventListener('DOMContentLoaded', function() {
+    // 检查Vue是否加载完成
+    if (typeof Vue === 'undefined') {
+        console.error('Vue未加载，请检查网络连接');
+        return;
+    }
 
-        const app = createApp({
-            data() {
-                return {
-                    rechargeHistory: [],
-                    loading: false,
-                    // 分页相关
-                    current: 1,
-                    pageSize: 10,
-                    total: 0,
-                    pages: 0
-                }
-            },
-            computed: {
-                // 计算总页数
-                pages() {
-                    return Math.ceil(this.total / this.pageSize);
-                }
-            },
-            mounted() {
-               // 检查httpUtil是否可用
-                if (typeof httpUtil === 'undefined' || !httpUtil) {
-                    console.error('httpUtil不可用，尝试重新初始化...');
-                    if (typeof initHttpUtil === 'function') {
-                        window.httpUtil = initHttpUtil();
-                    }
-                    if (!window.httpUtil) {
-                        this.showError('HTTP工具初始化失败，请刷新页面重试');
-                        return;
-                    }
-                }
-                this.loadRechargeHistory(1);
-            },
-            methods: {
-                async loadRechargeHistory(pageIndex) {
-                    this.loading = true;
-                    try {
-                        // 调用API获取分页数据
-                        const response = await httpUtil.post(API_CONFIG.ENDPOINTS.PAY_LIST, {
-                                pageIndex: pageIndex,
-                                pageSize: this.pageSize,
-                                states: [1]
-                        });
+    const { createApp } = Vue;
 
-                        if (response.code === 200) {
-                            this.rechargeHistory = response.data.records;
-                            this.total = response.data.total;
-                            this.current = response.data.current;
-                            this.pageSize = response.data.size;
-                            this.pages = response.data.pages
-                        } else {
-                            console.error('加载捐赠记录失败:', response.message);
-                            this.rechargeHistory = [];
-                        }
-                    } catch (error) {
-                        console.error('请求失败:', error)
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                getStateClass(state) {
-                    const stateMap = {
-                        0: 'state-pending',
-                        1: 'state-success',
-                        2: 'state-failed'
-                    };
-                    return stateMap[state] || 'state-pending';
-                },
-
-                getStateText(state) {
-                    const stateMap = {
-                        0: '未支付',
-                        1: '成功'
-                    };
-                    return stateMap[state] || '未知状态';
-                },
-
-                getPayTypeText(payType) {
-                    const typeMap = {
-                        'alipay': '支付宝',
-                        'wechat': '微信支付',
-                        'wechat_zs': '微信赞赏',
-                        'alipay_dfm': '支付宝当面付'
-                    };
-                    return typeMap[payType] || payType;
-                },
-
-                formatTime(time) {
-                    if (!time) return '';
-                    const date = new Date(time);
-                    return date.toLocaleString('zh-CN');
-                },
-
+    createApp({
+        data() {
+            return {
+                rechargeHistory: [],
+                loading: false,
+                currentPage: 1,
+                pageSize: 10,
+                total: 0,
+                totalPages: 0,
+                totalAmount: 0,
+                successCount: 0
             }
-        });
+        },
+        mounted() {
+            // 延迟初始化，让页面先渲染
+            setTimeout(() => {
+                this.loadRechargeHistory(1);
+            }, 100);
+        },
+        methods: {
+            async loadRechargeHistory(pageIndex) {
+                this.loading = true;
+                try {
+                    // 构建请求参数，states固定为[1]
+                    const requestParams = {
+                        pageIndex: pageIndex,
+                        pageSize: this.pageSize,
+                        states: [1]
+                    };
 
-        app.mount('#app');
-    </script>
+                    // 调用API获取数据
+                    const response = await postRequest(API_CONFIG.ENDPOINTS.PAY_LIST, requestParams);
+
+                    if (response.code === 200) {
+                        this.rechargeHistory = response.data.records || [];
+                        this.total = response.data.total || 0;
+                        this.currentPage = response.data.current || 1;
+                        this.pageSize = response.data.size || 10;
+                        this.totalPages = response.data.pages || 0;
+                        
+                        // 计算统计信息
+                        this.calculateStats();
+                    } else {
+                        console.error('加载捐赠记录失败:', response.message);
+                        this.rechargeHistory = [];
+                        this.total = 0;
+                        this.currentPage = 1;
+                        this.totalPages = 0;
+                    }
+                } catch (error) {
+                    console.error('请求失败:', error);
+                    this.rechargeHistory = [];
+                    this.total = 0;
+                    this.currentPage = 1;
+                    this.totalPages = 0;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            calculateStats() {
+                // 计算总金额和成功记录数
+                this.totalAmount = this.rechargeHistory.reduce((sum, record) => sum + parseFloat(record.money || 0), 0);
+                this.successCount = this.rechargeHistory.filter(record => record.state === 1).length;
+            },
+
+            getStatusClass(state) {
+                const classMap = {
+                    0: 'status-pending',
+                    1: 'status-success',
+                    2: 'status-failed'
+                };
+                return classMap[state] || 'status-pending';
+            },
+
+            getStatusIcon(state) {
+                const iconMap = {
+                    0: 'ri-time-line',
+                    1: 'ri-check-circle-line',
+                    2: 'ri-close-circle-line'
+                };
+                return iconMap[state] || 'ri-help-circle-line';
+            },
+
+            getStatusText(state) {
+                const textMap = {
+                    0: '处理中',
+                    1: '成功',
+                    2: '失败'
+                };
+                return textMap[state] || '未知状态';
+            },
+
+            getPayTypeText(payType) {
+                const typeMap = {
+                    'alipay': '支付宝',
+                    'wechat': '微信支付',
+                    'alipay_dmf': '支付宝当面付',
+                    'wechat_zs': '微信赞赏'
+                };
+                return typeMap[payType] || payType;
+            },
+
+            formatTime(time) {
+                if (!time) return '';
+                const date = new Date(time);
+                return date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+        }
+    }).mount('#app');
+});
+</script>
 </body>
 </html>

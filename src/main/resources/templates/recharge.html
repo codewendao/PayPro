@@ -3,656 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>捐赠中心</title>
-    <!-- 引入Vue 3 -->
+    <title> 捐赠中心 - PayPro</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
-    <!-- 引入API配置 -->
-    <script src="assets/js/api-config.js"></script>
-    <!-- 引入HTTP工具 -->
-    <script src="assets/js/http-util.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <script src="/assets/js/api-config.js"></script>
+    <script src="/assets/js/http-util.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .page-wrap {
+            padding-top: 60px;
+            padding-bottom: 60px;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
-        .header h1 {
+        .title {
             font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
         }
 
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .nav-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            color: #666;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .nav-tab:hover {
-            background: #e9ecef;
-            color: #333;
-        }
-
-        .nav-tab.active {
-            background: #007bff;
-            color: white;
-        }
-
-        .page-content {
-            padding: 30px;
-            min-height: 500px;
-        }
-
-        .recharge-form {
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
             max-width: 600px;
             margin: 0 auto;
         }
 
-        .amount-section {
-            margin-bottom: 30px;
-        }
-
-        .amount-options {
+        .content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
         }
 
-        .amount-option {
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+        .card {
+            padding: 32px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .amount {
+            padding: 24px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .amount-option:hover {
-            border-color: #007bff;
-            transform: translateY(-2px);
-        }
-
-        .amount-option.selected {
-            border-color: #007bff;
-            background: #e7f3ff;
-            color: #007bff;
-        }
-
-        .amount-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-top: 15px;
-        }
-
-        .amount-input:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        .payment-methods {
-            margin: 30px 0;
-        }
-
-        .payment-method {
+            transition: all .3s ease;
+            background: rgba(255,255,255,0.03);
+            min-height: 120px;
             display: flex;
-            align-items: center;
-            padding: 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .payment-method:hover {
-            border-color: #007bff;
-            transform: translateX(5px);
-        }
-
-        .payment-method.selected {
-            border-color: #007bff;
-            background: #e7f3ff;
-        }
-
-        .payment-icon {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-size: 2rem;
         }
 
-        .payment-info h3 {
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .payment-info p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .submit-btn:hover {
+        .amount:hover {
+            border-color: var(--primary-color);
+            background: rgba(99,102,241,.1);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
         }
 
-        .submit-btn:disabled {
-            background: #ccc;
+        .amount.active {
+            border-color: var(--primary-color);
+            background: rgba(99,102,241,.15);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+        }
+
+        .custom {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            margin-bottom: 32px;
+        }
+
+        .custom input {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all .3s ease;
+        }
+
+        .custom input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+            margin-bottom: 32px;
+        }
+
+        .method {
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            transition: all .3s ease;
+            background: rgba(255,255,255,0.03);
+            position: relative;
+        }
+
+        .method:hover:not(.disabled) {
+            border-color: var(--primary-color);
+            background: rgba(99,102,241,.1);
+            transform: translateY(-2px);
+        }
+
+        .method.active {
+            border-color: var(--primary-color);
+            background: rgba(99,102,241,.15);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+        }
+
+        .method.disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .method.disabled:hover {
+            border-color: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.02);
             transform: none;
         }
 
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+        .method-header {
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 9999;
+            gap: 12px;
+            width: 100%;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .method-icon {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .method-info {
+            flex: 1;
         }
 
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border: 1px solid #f5c6cb;
+        .method-name {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1rem;
+            margin-bottom: 4px;
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border: 1px solid #c3e6cb;
+        .method-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.4;
         }
 
-        .footer {
+        .method-status {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .method-status.available {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .method-status.unavailable {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .method i {
+            font-size: 1.5rem;
+        }
+
+        .field {
+            display: grid;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .field input {
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all .3s ease;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .summary-item {
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all .3s ease;
+        }
+
+        .summary-item:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .summary-item .label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .summary-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .msg {
+            margin-top: 20px;
             text-align: center;
-            color: white;
-            margin-top: 30px;
-            opacity: 0.8;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
         }
 
-        /* 禁用状态的基础样式 */
-        .payment-method.disabled {
-            opacity: 0.5; /* 降低透明度表示不可用 */
-            cursor: not-allowed; /* 鼠标显示为禁止符号 */
-            pointer-events: none; /* 阻止所有鼠标事件，确保不可点击 */
-            /* 可以根据需要添加其他样式，如灰色背景或边框 */
-            background-color: #f5f5f5;
-            border-color: #ddd;
+        .msg.error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* 如果希望更明确地视觉区分，可以覆盖选中状态 */
-        .payment-method.disabled.selected {
-            border-color: #ccc; /* 禁用状态下的选中边框颜色变浅 */
-            background-color: #eee;
+        .msg.success {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
-        /* 禁用状态提示文字样式 */
-        .disabled-hint {
-            color: #ff6b6b; /* 使用醒目的颜色 */
-            font-size: 0.85em;
-            margin-top: 4px;
-            font-style: italic;
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px dashed rgba(255,255,255,0.1);
         }
 
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .amounts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .methods {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .actions .btn {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-wrap {
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .amounts {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 <div id="app">
-    <!-- 加载遮罩 -->
-    <div v-if="loading" class="loading">
-        <div class="spinner"></div>
-    </div>
-
-    <div class="container">
+    <div class="container page-wrap">
         <div class="header">
-            <h1>💳 捐赠中心</h1>
-            <p>安全、快捷的在线充值服务</p>
+            <h1 class="title">
+                <i class="ri-wallet-3-line"></i> 捐赠中心
+            </h1>
+            <p class="subtitle">选择金额和支付方式，快速完成捐赠</p>
         </div>
 
-        <div class="main-content">
-            <nav class="nav-tabs">
-                <a href="recharge.html" class="nav-tab active">💰 捐赠</a>
-                <a href="history.html" class="nav-tab">📋 捐赠记录</a>
-                <a href="help.html" class="nav-tab">❓ 帮助中心</a>
-            </nav>
-
-            <div class="page-content">
-                <!-- 错误信息 -->
-                <div v-if="errorMessage" class="error-message">
-                    ❌ {{ errorMessage }}
+        <div class="content">
+            <div class="glass card">
+                <div class="section-title">
+                    <i class="ri-money-dollar-circle-line"></i> 金额
                 </div>
-
-                <!-- 成功信息 -->
-                <div v-if="successMessage" class="successMessage">
-                    ✅ {{ successMessage }}
-                </div>
-                <div class="recharge-form">
-<!--                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">💰 选择充值金额</h2>-->
-
-                    <div class="amount-section">
-                        <!-- 快速选择部分 -->
-                        <h3 style="margin-bottom: 15px; color: #555;">请选择捐赠金额</h3>
-                        <div v-if="productList.length > 0" class="amount-options">
-                            <div
-                                    v-for="product in productList"
-                                    :key="product.id"
-                                    class="amount-option"
-                                    :class="{
-                                    selected: selectedProductId === product.id && !customAmount
-                                }"
-                                    @click="selectProduct(product)"
-                                    :title="product.description"
-                            >
-                                <div>￥{{ formatMoney(product.money) }}</div>
-                                <div style="font-size: 12px; margin-top: 5px; color: #666;">
-                                    {{ product.productName }}
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else style="text-align: center; color: #999; padding: 20px;">
-                            暂无商品信息
-                        </div>
-
-                        <h3 style="margin-bottom: 15px; color: #555;">自定义金额</h3>
-                        <input
-                                type="number"
-                                class="amount-input"
-                                placeholder="随意撒币"
-                                v-model="customAmount"
-                                min="1"
-                                max="10000"
-                                @input="clearSelectedProduct"
-                        />
-
-                        <h3 style="margin-top: 15px; color: #555;">拓展信息</h3>
-                        <input
-                                type="text"
-                                class="amount-input"
-                                placeholder="请输入备注信息（选填）"
-                                v-model="description"
-                        />
-
-                        <h3 style="margin-top: 15px; color: #555;">邮箱</h3>
-                        <input
-                                type="text"
-                                class="amount-input"
-                                placeholder="请输入邮箱"
-                                v-model="email"
-                        />
-                    </div>
-
-                    <div class="payment-methods">
-                        <h3 style="margin-bottom: 20px; color: #555;">💳 选择支付方式</h3>
-                        <div
-                                class="payment-method"
-                                :class="[{ selected: selectedPayment === method.id }, { disabled: !method.status }]"
-                                v-for="method in paymentMethods"
-                                :key="method.id"
-                                @click="selectPayment(method)"
-                        >
-                            <div class="payment-icon">{{ method.icon }}</div>
-                            <div class="payment-info">
-                                <h3>{{ method.name }}</h3>
-                                <p>{{ method.description }}</p>
-                            </div>
+                <div v-if="productList.length > 0" class="amounts">
+                    <div class="amount"
+                         v-for="product in productList"
+                         :key="product.id"
+                         :class="{active: selectedProductId === product.id && !customAmount}"
+                         @click="selectProduct(product)"
+                         :title="product.description">
+                        <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-color);">￥{{ formatMoney(product.money) }}</div>
+                        <div style="font-size: 12px; margin-top: 8px; color: var(--text-muted);">
+                            {{ product.productName }}
                         </div>
                     </div>
+                </div>
+                <div v-else class="empty-state">
+                    <i class="ri-shopping-cart-line"></i>
+                    <div>暂无商品配置</div>
+                </div>
+                <div class="custom">
+                    <input type="number" min="1" step="1" placeholder="自定义金额" v-model.number="customAmount">
+                    <a class="btn btn-ghost" @click="useCustom">
+                        <i class="ri-check-line"></i> 使用
+                    </a>
+                </div>
 
-                    <button
-                            class="submit-btn"
-                            :disabled="!canSubmit"
-                            @click="submitRecharge"
-                    >
-                        立即充值 ￥{{ formatMoney(finalAmount) }}
-                    </button>
+                <div class="section-title">
+                    <i class="ri-credit-card-line"></i> 支付方式
+                </div>
+                <div class="methods">
+                    <div v-for="method in paymentMethods"
+                         :key="method.id"
+                         class="method"
+                         :class="{active: selectedPayment===method.id, disabled: !method.status}"
+                         @click="method.status ? selectPayment(method.id, method.useLocalQrCode) : null">
+                        <div class="method-header">
+                            <div class="method-icon">{{ method.icon }}</div>
+                            <div class="method-info">
+                                <div class="method-name">{{ method.name }}</div>
+                                <div class="method-description">{{ method.description }}</div>
+                            </div>
+                        </div>
+                        <!--                        <div class="method-status" :class="method.status ? 'available' : 'unavailable'">-->
+                        <!--                            {{ method.status ? '可用' : '不可用' }}-->
+                        <!--                        </div>-->
+                    </div>
+                </div>
+
+                <div class="field">
+                    <input type="text" placeholder="备注信息" v-model.trim="description">
+                </div>
+                <div class="field">
+                    <input type="email" placeholder="邮箱（用于接收通知）" v-model.trim="email">
+                </div>
+
+                <div class="actions">
+                    <a class="btn btn-primary" @click="submitRecharge" :class="{disabled: !canSubmit}" :style="{ opacity: canSubmit ? 1 : 0.6 }">
+                        <i class="ri-arrow-right-line"></i> 发起支付
+                    </a>
+                    <a href="history.html" class="btn btn-ghost">
+                        <i class="ri-history-line"></i> 捐赠记录
+                    </a>
+                </div>
+
+                <div class="msg" v-if="message">
+                    <span :class="messageType">{{ message }}</span>
+                </div>
+            </div>
+
+            <div class="glass card">
+                <div class="section-title">
+                    <i class="ri-file-list-line"></i> 订单摘要
+                </div>
+                <div class="summary">
+                    <div class="summary-item">
+                        <div class="label">充值金额</div>
+                        <div class="value">￥{{ finalAmount }}</div>
+                    </div>
+                    <div class="summary-item" v-if="selectedProductDescription">
+                        <div class="label">产品描述</div>
+                        <div class="value">{{ selectedProductDescription }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">支付方式</div>
+                        <div class="value">{{ payTypeName }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">订单状态</div>
+                        <div class="value" style="color: var(--primary-color);">准备中</div>
+                    </div>
+                </div>
+                <div class="msg" style="margin-top:24px; color: var(--text-muted);">
+                    <i class="ri-info-line"></i> 提交后将跳转到支付页面完成支付
                 </div>
             </div>
         </div>
 
-        <div class="footer">
-            <p>&copy; 捐赠中心 - 安全可靠的支付服务</p>
-        </div>
+        <div class="footer"><p>&copy; 2026 PayPro System. Designed for Creators.</p></div>
     </div>
 </div>
 
 <script>
-    const { createApp } = Vue;
+const { createApp } = Vue;
 
-    const app = createApp({
-        data() {
-            return {
-                selectedProductId: null,  // 选中的商品ID
-                selectedAmount: 0,         // 选中的金额
-                useLocalQrCode: false,         // 选中的金额
-                customAmount: '',          // 自定义金额
-                customText: '',           // 自定义备注
-                email: '',                // 邮箱
-                selectedPayment: '',      // 选中的支付方式
-                loading: false,           // 加载状态
-                errorMessage: '',         // 错误信息
-                successMessage: '',       // 成功信息
-                productList: [],          // 从接口获取的商品列表
-                paymentMethods: [
-                    {
-                        id: 'alipay',
-                        name: '支付宝转账',
-                        description: '使用支付宝转账（免输备注开发中）',
-                        icon: '🔵',
-                        status: true,
-                        useLocalQrCode:true
-                    },
-                    {
-                        id: 'wechat',
-                        name: '微信支付',
-                        description: '使用微信扫码支付',
-                        icon: '🟢',
-                        status: true,
-                        useLocalQrCode:true
-                    },
-                    {
-                        id: 'wechat_zs',
-                        name: '微信赞赏码支付',
-                        description: '使用微信扫码支付',
-                        icon: '🟢',
-                        status: true,
-                        useLocalQrCode:true
-                    },
-                    {
-                        id: 'alipay_dmf',
-                        name: '支付宝当面付',
-                        description: '使用支付宝扫码（自动收款，无须备注！开发中）',
-                        icon: '🔵',
-                        status: false,
-                        useLocalQrCode:false
-                    }
-
-                ]
-            }
-        },
-        computed: {
-            // 最终金额：优先使用自定义金额，如果没有则使用选中的商品金额
-            finalAmount() {
-                if (this.customAmount) {
-                    return parseFloat(this.customAmount) || 0;
+createApp({
+    data(){
+        return {
+            selectedProductId: null,
+            customAmount: null,
+            selectedPayment: 'alipay',
+            useLocalQrCode: false,
+            description: '',
+            email: '',
+            loading: false,
+            message: '',
+            messageType: '',
+            productList: [],
+            paymentMethods: [
+                {
+                    id: 'alipay',
+                    name: '支付宝转账',
+                    description: '免备注',
+                    icon: '🔵',
+                    status: true,
+                    useLocalQrCode: false
+                },
+                {
+                    id: 'wechat',
+                    name: '微信支付',
+                    description: '微信PC自动监听收款发货',
+                    icon: '🟢',
+                    status: true,
+                    useLocalQrCode: true
+                },
+                {
+                    id: 'wechat_zs',
+                    name: '微信赞赏码支付',
+                    description: '赞赏码支付',
+                    icon: '🟢',
+                    status: true,
+                    useLocalQrCode: true
+                },
+                {
+                    id: 'alipay_dmf',
+                    name: '支付宝当面付',
+                    description: '官方产品，无需营业执照',
+                    icon: '🔵',
+                    status: false,
+                    useLocalQrCode: false
                 }
-
-                if (this.selectedProductId) {
-                    const selectedProduct = this.productList.find(p => p.id === this.selectedProductId);
-                    return selectedProduct ? selectedProduct.money : 0;
-                }
-
-                return 0;
-            },
-
-            // 是否可以提交
-            canSubmit() {
-                return this.finalAmount > 0 && this.selectedPayment && this.email;
-            }
-        },
-        methods: {
-            // 格式化金额，保留两位小数
-            formatMoney(money) {
-                if (!money && money !== 0) return '0.00';
-                return parseFloat(money).toFixed(2);
-            },
-
-            // 清除消息
-            clearMessages() {
-                this.errorMessage = '';
-                this.successMessage = '';
-            },
-
-            // 显示错误消息
-            showError(message) {
-                this.errorMessage = message;
-                this.successMessage = '';
-                setTimeout(() => {
-                    this.errorMessage = '';
-                }, 5000);
-            },
-
-            // 显示成功消息
-            showSuccess(message) {
-                this.successMessage = message;
-                this.errorMessage = '';
-                setTimeout(() => {
-                    this.successMessage = '';
-                }, 3000);
-            },
-
-            // 选择商品
-            selectProduct(product) {
-                this.selectedProductId = product.id;
-                this.selectedAmount = product.money;
-                this.customAmount = '';  // 清空自定义金额
-                this.clearMessages();
-            },
-
-            // 当自定义金额输入时，清空选中的商品
-            clearSelectedProduct() {
-                if (this.customAmount) {
-                    this.selectedProductId = null;
-                    this.selectedAmount = 0;
-                }
-            },
-
-            // 选择支付方式
-            selectPayment(method) {
-                this.selectedPayment = method.id;
-                this.useLocalQrCode = method.useLocalQrCode;
-                this.clearMessages();
-            },
-
-            // 发起充值请求
-            async submitRecharge() {
-                if (!this.canSubmit) {
-                    this.showError('请选择充值金额和支付方式');
-                    return;
-                }
-
-                // 检查httpUtil是否可用
-                if (typeof httpUtil === 'undefined' || !httpUtil) {
-                    console.error('httpUtil不可用，尝试重新初始化...');
-                    if (typeof initHttpUtil === 'function') {
-                        window.httpUtil = initHttpUtil();
-                    }
-                    if (!window.httpUtil) {
-                        this.showError('HTTP工具初始化失败，请刷新页面重试');
-                        return;
-                    }
-                }
-
-                this.loading = true;
-                this.clearMessages();
-
-                try {
-                    // 构建充值请求数据
-                    const rechargeData = {
-                        money: this.finalAmount,
-                        payType: this.selectedPayment,
-                        description: this.description,
-                        nickName: "",
-                        custom: Boolean(this.customAmount),
-                        email: this.email,
-                        productId: this.selectedProductId
-                    };
-
-                    console.log('发起充值请求:', rechargeData);
-
-                    // 发起充值请求
-                    let response;
-                    response = await httpUtil.post(API_CONFIG.ENDPOINTS.RECHARGE, rechargeData);
-
-                    console.log('充值响应:', response);
-
-                    if (response.code == 200) {
-                        this.showSuccess(`充值请求提交成功！订单号：${response.data.id}`);
-                        // 延迟跳转到支付页面
-                        // 或保存 this 引用
-                        const that = this;
-                        setTimeout(() => {
-                            const paymentUrl = `payment.html?orderId=${response.data.id}&money=${response.data.money}&payType=${response.data.payType}&payNum=${response.data.payNum}&customerQr=${response.data.custom}&picName=${encodeURIComponent((response.data.money || 0).toFixed(2))}&qrCode=${response.data.qrCode}&payQrNum=${response.data.payQrNum}&useLocalQrCode=${that.useLocalQrCode}`;
-                            window.location.href = paymentUrl;
-                        }, 1000);
-                    } else {
-                        this.showError(response.message || '充值请求失败，请稍后重试');
-                    }
-                } catch (error) {
-                    console.error('充值请求失败:', error);
-
-                    if (error.message.includes('超时')) {
-                        this.showError('网络超时，请检查网络连接后重试');
-                    } else if (error.message.includes('HTTP Error')) {
-                        this.showError('服务器错误，请稍后重试');
-                    } else {
-                        this.showError('充值请求失败，请稍后重试');
-                    }
-                } finally {
-                    this.loading = false;
-                }
-            }
-        },
-
-        // 组件挂载时初始化
-        async mounted() {
-            this.loading = true;
-
-            // 检查API_CONFIG是否已加载
-            if (typeof API_CONFIG === 'undefined') {
-                console.error('API_CONFIG未定义，请检查api-config.js文件是否正确加载');
-                this.showError('API配置加载失败，请刷新页面重试');
-                this.loading = false;
-                return;
-            }
-
-            // 检查httpUtil是否已初始化
-            if (typeof httpUtil === 'undefined') {
-                console.error('httpUtil未定义，正在尝试初始化...');
-                // 尝试初始化httpUtil
-                if (typeof initHttpUtil === 'function') {
-                    window.httpUtil = initHttpUtil();
-                } else {
-                    this.showError('HTTP工具初始化失败，请刷新页面重试');
-                    this.loading = false;
-                    return;
-                }
-            }
-
-            try {
-                // 获取商品列表
-                const data = {
-                    types: ['CODE']  // 这里可以根据需要传入其他类型
-                };
-
-                const response = await httpUtil.post(API_CONFIG.ENDPOINTS.PRODUCT_LIST, data);
-
-                if (response.code === 200 && response.data) {
-                    // 将商品列表赋值给productList
-                    this.productList = response.data;
-                    console.log('商品列表加载成功:', this.productList);
-                } else {
-                    console.error('获取商品列表失败:', response.msg);
-                    this.showError(`获取商品列表失败: ${response.msg || '未知错误'}`);
-                }
-            } catch (error) {
-                console.error('获取商品信息失败:', error);
-                this.showError('获取商品信息失败，请稍后重试');
-            } finally {
-                this.loading = false;
-            }
+            ]
         }
-    });
-
-    app.mount('#app');
+    },
+    computed:{
+        finalAmount(){
+            if(this.customAmount){ return Number(this.customAmount) || 0; }
+            if(this.selectedProductId){
+                const p = this.productList.find(x=>x.id===this.selectedProductId);
+                return p ? Number(p.money) : 0;
+            }
+            return 0;
+        },
+        canSubmit(){
+            return this.finalAmount > 0 && !!this.selectedPayment && !!this.email;
+        },
+        payTypeName(){
+            const method = this.paymentMethods.find(m => m.id === this.selectedPayment);
+            return method ? method.name : '未选择';
+        },
+        selectedProductDescription(){
+            if (this.selectedProductId) {
+                const product = this.productList.find(p => p.id === this.selectedProductId);
+                return product ? (product.description || product.productName) : '';
+            }
+            return '';
+        }
+    },
+    methods:{
+        selectProduct(product){ this.selectedProductId = product.id; this.customAmount = null; this.clearMessages(); },
+        useCustom(){ /* 保持customAmount为最终金额来源 */ },
+        selectPayment(t,b){ this.selectedPayment = t;this.useLocalQrCode = b },
+        formatMoney(m){ if(m===0 || m){ return Number(m).toFixed(2); } return '0.00'; },
+        clearMessages(){ this.message=''; this.messageType=''; },
+        showError(msg){ this.message = msg; this.messageType = 'error'; },
+        showSuccess(msg){ this.message = msg; this.messageType = 'success'; },
+        async submitRecharge(){
+            if(!this.canSubmit){ this.showError('请选择金额和支付方式'); return; }
+            this.loading = true; this.clearMessages();
+            try{
+                const body = { money: this.finalAmount, productId: this.selectedProductId, payType: this.selectedPayment, description: this.description, nickName: '', custom: Boolean(this.customAmount), email: this.email };
+                let resp = await postRequest(API_CONFIG.ENDPOINTS.RECHARGE, body);
+                if(resp.code==200){
+                    this.showSuccess('已提交，正在跳转');
+                    const that = this;
+                    setTimeout(()=>{
+                        const url = `payment.html?orderId=${resp.data.id}&money=${resp.data.money}&payType=${resp.data.payType}&payNum=${resp.data.payNum}&customerQr=${resp.data.custom}&picName=${encodeURIComponent((resp.data.money||0).toFixed(2))}&qrCode=${resp.data.qrCode}&payQrNum=${resp.data.payQrNum}&useLocalQrCode=${that.useLocalQrCode}`;
+                        window.location.href = url;
+                    },800);
+                } else {
+                    this.showError(resp.message || '提交失败，请稍后重试');
+                }
+            }catch(e){
+                if((e.message||'').includes('超时')){ this.showError('网络超时，请稍后重试'); }
+                else if((e.message||'').includes('HTTP Error')){ this.showError('服务器错误，请稍后重试'); }
+                else { this.showError('提交失败，请稍后重试'); }
+            } finally { this.loading=false; }
+        }
+    },
+    mounted(){
+        if(typeof API_CONFIG==='undefined'){ this.showError('API配置加载失败'); }
+        (async ()=>{
+            try{
+                const req = { types: ['CODE'] };
+                const resp = await postRequest(API_CONFIG.ENDPOINTS.PRODUCT_LIST, req);
+                if(resp.code===200 && resp.data){ this.productList = resp.data; }
+            }catch(e){ this.showError('获取商品列表失败'); }
+        })();
+    }
+}).mount('#app');
 </script>
 </body>
 </html>

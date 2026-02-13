@@ -1,0 +1,465 @@
+<!doctype html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>个人支付系统 - 无需签约，全自动收款</title>
+
+    <!-- 支付宝JS API -->
+    <script src="https://gw.alipayobjects.com/as/g/h5-lib/alipayjsapi/3.1.1/alipayjsapi.min.js"></script>
+
+    <!-- AntUI CSS -->
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/dpl/antui.css"/>
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/??dpl/widget/message.css,dpl/icon/message.css,dpl/widget/search.css"/>
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/dpl/widget/notice.css">
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/dpl/widget/tips.css">
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/dpl/widget/dialog.css">
+
+    <!-- AntUI JS -->
+    <script src="https://gw.alipayobjects.com/as/g/antui/antui/10.1.32/antui.js"></script>
+
+    <!-- Vue 3 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+
+    <!-- 引入API配置 -->
+    <script src="/assets/js/api-config.js"></script>
+    <!-- 引入HTTP工具 -->
+    <script src="/assets/js/http-util.js"></script>
+</head>
+
+<style>
+    .am-notice .am-notice-content {
+        -webkit-flex: 1;
+        overflow: hidden;
+        margin-left: 15px;
+        margin-right: 5px;
+        padding-left: 25px;
+    }
+
+    /* 额外样式 */
+    .payment-info {
+        padding: 15px;
+        background: #f5f5f5;
+        margin: 10px 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .amount-display {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1677ff;
+        margin: 8px 0;
+    }
+
+    .order-info {
+        font-size: 14px;
+        color: #666;
+        margin: 5px 0;
+    }
+
+    .loading {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<body>
+<div id="app">
+    <!-- 顶部提示 -->
+    <div v-if="showAlert" class="am-notice" role="alert">
+        <div class="am-notice-content">由于客户端版本问题，部分设备可能无法跳转支付</div>
+        <div class="am-notice-operation">
+            <a @click="closeAlert" class="am-notice-close" role="button"></a>
+        </div>
+    </div>
+
+    <!-- 支付信息显示 -->
+    <div class="payment-info">
+        <div class="order-info">订单号：{{ paymentData.orderId }}</div>
+        <div class="order-info">订单标识：{{ paymentData.orderNum }}</div>
+        <div class="amount-display">￥{{ paymentData.money }}</div>
+        <div class="order-info">Pay支付系统</div>
+    </div>
+
+    <!-- 主要消息区域 -->
+    <div class="am-message result">
+        <i v-if="paymentStatus === 'waiting'" class="am-icon result wait loading"></i>
+        <i v-if="paymentStatus === 'failed'" class="am-icon result warn"></i>
+        <i v-if="paymentStatus === 'success'" class="am-icon result success"></i>
+
+        <div class="am-message-main">{{ statusMessage }}</div>
+        <div class="am-message-sub">{{ statusSubMessage }}</div>
+    </div>
+
+    <!-- 按钮区域 -->
+    <div class="am-button-wrap">
+        <button class="am-button blue" @click="showAction">立即支付</button>
+        <button class="am-button white" @click="returnApp">取消支付</button>
+    </div>
+
+    <!-- 底部提示 -->
+    <div v-if="showTip" class="am-tips am-tips-block am-tips-favorite">
+        <div class="am-tips-wrap">
+            <div class="am-tips-close" @click="closeTip">关闭</div>
+            <div class="am-tips-icon">
+                <img src="assets/images/zfb.png" alt="支付宝">
+            </div>
+            <div class="am-tips-content am-ft-ellipsis">
+                若无法跳转请点击“立即支付”
+            </div>
+            <div class="am-tips-action" role="button" @click="closeTip">
+                知道了
+            </div>
+        </div>
+    </div>
+
+    <!-- 扫码支付对话框 -->
+    <div v-if="showDialog1" class="am-dialog-mask show"></div>
+    <div v-if="showDialog1" class="am-dialog image show" role="dialog">
+        <div class="am-dialog-wrap">
+            <div class="am-dialog-img fill">
+                <img :src="alipayQrCodeUrl"
+                     style="width: 85%; height: 150px; object-fit: contain;"
+                     alt="支付宝收款码">                </div>
+            <div class="am-dialog-header">
+                <h3>订单标识号：{{ paymentData.orderNum }}</h3>
+            </div>
+            <div class="am-dialog-body">
+                <p class="am-dialog-brief">
+                    支付时请输入金额：￥{{ paymentData.money }}，备注中输入标识号：{{ paymentData.orderNum }}
+                </p>
+            </div>
+            <div class="am-dialog-footer">
+                <a type="button" class="am-dialog-button" @click="customPay">知道了，立即支付</a>
+            </div>
+            <a class="am-dialog-close" @click="closeDialog"></a>
+        </div>
+    </div>
+
+    <!-- 红包支付对话框 -->
+    <div v-if="showDialog2" class="am-dialog-mask show"></div>
+    <div v-if="showDialog2" class="am-dialog show" role="dialog">
+        <div class="am-dialog-wrap">
+            <div class="am-dialog-header">
+                <h3>请务必选择“普通红包”支付</h3>
+            </div>
+            <div class="am-dialog-body">
+                <p class="am-dialog-brief">请勿修改红包内金额或备注，若系统超过24小时未领取，金额将自动退回您的账户</p>
+            </div>
+            <div class="am-dialog-footer">
+                <button type="button" class="am-dialog-button" @click="redPay">知道了，立即支付</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    // UI状态
+                    showAlert: true,
+                    showTip: true,
+                    showDialog1: false,
+                    showDialog2: false,
+
+                    // 支付数据
+                    paymentData: {
+                        money: 0,
+                        orderNum: '',
+                        orderId: ''
+                    },
+
+                    // 支付状态
+                    paymentStatus: 'waiting', // waiting, failed, success
+
+                    // 配置信息
+                    config: {
+                        alipayUserId: '[[${alipayUserId}]]', // 需要替换为真实的支付宝用户ID
+                        customUrl: '[[${alipayCustomQrUrl}]]', // 需要替换为真实的收款码
+                        mobile: '[[${mobile}]]', // 支付宝绑定手机号
+                        nickName: '[[${name}]]' // 支付宝昵称
+                    }
+                }
+            },
+
+            computed: {
+                statusMessage() {
+                    const messages = {
+                        waiting: '等待跳转支付...',
+                        failed: '自动跳转支付失败',
+                        success: '支付成功'
+                    };
+                    return messages[this.paymentStatus] || '未知状态';
+                },
+
+                statusSubMessage() {
+                    const messages = {
+                        waiting: '若无法自动跳转支付请点击下方立即支付按钮',
+                        failed: '请点击"立即支付"手动支付',
+                        success: '感谢您的支付'
+                    };
+                    return messages[this.paymentStatus] || '';
+                },
+
+                alipayQrCodeUrl() {
+                    // 使用绝对路径访问图片，确保在支付宝环境中能正确加载
+                    return '/assets/images/aliremark.png';
+                }
+            },
+
+            mounted() {
+                this.initApp();
+            },
+
+            methods: {
+                // 初始化应用
+                initApp() {
+                    console.log('初始化支付宝收银台...');
+
+                    // 检查是否在支付宝环境中
+                    this.checkAlipayEnvironment();
+
+                    // 获取URL参数
+                    this.getUrlParams();
+
+                    // 初始化支付宝JSBridge
+                    this.initAlipayJSBridge();
+                },
+
+                // 检查支付宝环境
+                checkAlipayEnvironment() {
+                    const ua = window.navigator.userAgent.toLowerCase();
+                    if (ua.indexOf('alipay') < 0) {
+                        console.warn('当前不在支付宝环境中');
+                        this.paymentStatus = 'failed';
+                        // 可以选择跳转到主页或显示提示
+                        // location.href = '/';
+                    }
+                },
+
+                // 获取URL参数
+                getUrlParams() {
+                    const url = window.location.search;
+                    const params = {};
+                    if (url.indexOf('?') !== -1) {
+                        const str = url.substr(1);
+                        const strs = str.split('&');
+                        for (let i = 0; i < strs.length; i++) {
+                            const param = strs[i].split('=');
+                            params[param[0]] = decodeURIComponent(param[1] || '');
+                        }
+                    }
+
+                    // 设置支付数据
+                    this.paymentData.money = params.money || '0.00';
+                    this.paymentData.orderNum = params.payNum ;
+                    this.paymentData.orderId = params.id || params.orderId || '';
+
+                    console.log('获取到的支付数据:', this.paymentData);
+                },
+
+                // 初始化支付宝JSBridge
+                initAlipayJSBridge() {
+                    const self = this;
+
+                    function ready(callback) {
+                        if (window.AlipayJSBridge) {
+                            callback && callback();
+                        } else {
+                            document.addEventListener('AlipayJSBridgeReady', callback, false);
+                        }
+                    }
+
+                    ready(function() {
+                        console.log('支付宝JSBridge已准备好');
+
+                        // 设置页面标题
+                        if (typeof AlipayJSBridge !== 'undefined') {
+                            AlipayJSBridge.call('setTitle', {
+                                title: '支付宝收银台'
+                            });
+                        }
+
+                        // 自动跳转支付
+                        self.autoJumpToPay();
+                    });
+                },
+
+                // 自动跳转支付
+                autoJumpToPay() {
+                    console.log('尝试自动跳转支付...');
+
+                    const scanUrl = this.generateScanUrl();
+
+                    // 立即跳转
+                    location.href = scanUrl;
+
+                    // 5秒后再次跳转（防止第一次失败）
+                    // setTimeout(() => {
+                    //     location.href = scanUrl;
+                    // }, 5000);
+                },
+
+                // 生成扫码支付URL
+                generateScanUrl() {
+                    const bizData = {
+                        s: 'money',
+                        u: this.config.alipayUserId,
+                        a: this.paymentData.money,
+                        m: this.paymentData.orderNum
+                    };
+
+                    return `alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data=${encodeURIComponent(JSON.stringify(bizData))}`;
+                },
+
+                // 生成红包支付URL
+                generateRedUrl() {
+                    const { alipayUserId, mobile, nickName } = this.config;
+                    const { money, orderNum } = this.paymentData;
+
+                    return `alipays://platformapi/startapp?appId=88886666&appLaunchMode=3&canSearch=false&chatLoginId=${mobile}&chatUserId=${alipayUserId}&chatUserName=${encodeURIComponent(nickName)}&chatUserType=1&entryMode=personalStage&prevBiz=chat&schemaMode=portalInside&target=personal&money=${money}&amount=${money}&remark=${orderNum}`;
+                },
+
+                // 生成加好友URL
+                generateFriendUrl() {
+                    const { alipayUserId, mobile } = this.config;
+                    return `alipays://platformapi/startapp?appId=20000186&actionType=addfriend&userId=${alipayUserId}&loginId=${mobile}&source=by_f_v&alert=true`;
+                },
+
+                // 显示支付方式选择
+                showAction() {
+                    if (typeof AlipayJSBridge === 'undefined') {
+                        alert('支付宝环境未准备就绪，请稍后重试');
+                        return;
+                    }
+                    AlipayJSBridge.call('actionSheet', {
+                        title: '选择支付方式',
+                        btns: ['立即支付', '收款码支付(推荐)', '普通红包支付'], // , '银行卡转账(演示)'
+                        cancelBtn: '取消'
+                    }, (data) => {
+                        switch (data.index) {
+                            case 0:
+                                // 立即支付
+                                location.href = this.generateScanUrl();
+                                break;
+                            case 1:
+                                // 收款码支付
+                                this.showDialog1 = true;
+                                break;
+                            case 2:
+                                // 红包支付
+                                this.showDialog2 = true;
+                                break;
+                        }
+                    });
+                },
+
+                // 自定义支付（收款码）
+                customPay() {
+                    location.href = this.config.customUrl;
+                },
+
+                // 红包支付
+                redPay() {
+                    this.showDialog2 = false;
+
+                    // 先加好友
+                    location.href = this.generateFriendUrl();
+
+                    // 延时启动红包
+                    setTimeout(() => {
+                        location.href = this.generateRedUrl();
+                    }, 888);
+                },
+
+                // 返回应用
+                returnApp() {
+                    if (typeof AlipayJSBridge !== 'undefined') {
+                        AlipayJSBridge.call('exitApp');
+                    } else {
+                        // 如果不在支付宝环境中，返回上一页或主页
+                        history.back() || (location.href = '/');
+                    }
+                },
+
+                // UI 控制方法
+                closeAlert() {
+                    this.showAlert = false;
+                },
+
+                closeTip() {
+                    this.showTip = false;
+                },
+
+                closeDialog() {
+                    this.showDialog1 = false;
+                    this.showDialog2 = false;
+                },
+
+                // 支付状态检查（可选）
+                async checkPaymentStatus() {
+                    if (!this.paymentData.orderId) {
+                        console.warn('订单ID不存在，无法查询支付状态');
+                        return;
+                    }
+
+                    try {
+                        // 检查httpUtil是否可用
+                        if (typeof httpUtil !== 'undefined' && typeof API_CONFIG !== 'undefined') {
+                            const response = await httpUtil.get(API_CONFIG.ENDPOINTS.STATUS, {
+                                orderId: this.paymentData.orderId
+                            });
+
+                            if (response.success && response.data === 1) {
+                                this.paymentStatus = 'success';
+
+                                // 可以跳转到成功页面
+                                setTimeout(() => {
+                                    location.href = `/payment-success.html?orderId=${this.paymentData.orderId}&amount=${this.paymentData.money}`;
+                                }, 2000);
+                            }
+
+                            if (response.success && response.data === 2) {
+                                this.paymentStatus = 'failed';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('查询支付状态失败:', error);
+                    }
+                },
+
+                // 定期检查支付状态
+                startPaymentPolling() {
+                    if (!this.paymentData.orderId) return;
+
+                    const pollingInterval = setInterval(() => {
+                        this.checkPaymentStatus();
+
+                        // 30秒后停止轮询
+                        setTimeout(() => {
+                            clearInterval(pollingInterval);
+                        }, 30000);
+                    }, 3000);
+                }
+            },
+            
+            // 组件挂载后启动轮询（可选）
+            created() {
+                // 可以在这里启动支付状态轮询
+                // this.startPaymentPolling();
+            }
+        });
+        
+        app.mount('#app');
+    </script>
+</body>
+</html>
