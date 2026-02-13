@@ -6,7 +6,7 @@ class HttpUtil {
             console.error('API_CONFIG未定义，请确保api-config.js已正确加载');
             throw new Error('API_CONFIG is not defined');
         }
-        
+
         this.baseURL = API_CONFIG.BASE_URL;
         this.timeout = API_CONFIG.TIMEOUT;
         this.defaultHeaders = API_CONFIG.HEADERS;
@@ -105,13 +105,13 @@ function initHttpUtil() {
     if (httpUtil) {
         return httpUtil;
     }
-    
+
     // 检查API_CONFIG是否已加载
     if (typeof API_CONFIG === 'undefined') {
         console.error('API_CONFIG未定义，请确保api-config.js已正确加载');
         return null;
     }
-    
+
     try {
         httpUtil = new HttpUtil();
         console.log('HttpUtil初始化成功（全局单例）');
@@ -132,11 +132,11 @@ async function httpRequest(endpoint, options = {}) {
     try {
         // 确保httpUtil已初始化（单例模式）
         const util = getHttpUtil();
-        
+
         if (!util) {
             throw new Error('HTTP工具初始化失败');
         }
-        
+
         // 根据请求类型调用相应方法
         if (options.method === 'GET' || options.method === 'DELETE') {
             return await util.get(endpoint, options.params);
@@ -175,7 +175,7 @@ if (typeof module !== 'undefined' && module.exports) {
     window.httpRequest = httpRequest;
     window.postRequest = postRequest;
     window.getRequest = getRequest;
-    
+
     // 在DOM加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
