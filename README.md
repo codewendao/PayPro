@@ -10,6 +10,8 @@ PayPro是一个零门槛的个人支付解决方案，帮助个人开发者和�
 开源版：https://paypro.codewendao.com
 高级版：https://pay.codewendao.com
 
+邮箱支持：codewendao@163.com
+
 ## ✨ 核心功能
 
 ### 🚀 基础功能
