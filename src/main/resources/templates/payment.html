@@ -155,7 +155,7 @@ createApp({
             return `${m}:${s.toString().padStart(2,'0')}`;
         },
         payTypeName(){
-            const map = { alipay:'支付宝', wechat:'微信支付', alipay_dmf:'支付宝', wechat_zs:'支付宝' };
+            const map = { alipay:'支付宝', wechat:'微信支付', alipay_dmf:'支付宝', wechat_zs:'微信赞赏' };
             return map[this.orderInfo.payType] || '未知方式';
         },
         showInfoPanel(){
