@@ -61,3 +61,6 @@ CREATE TABLE `t_product`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+INSERT INTO `t_product` (`id`, `create_time`, `description`, `money`, `product_name`, `update_time`, `item_info`, `type`, `extend`, `del`) VALUES (9, NULL, '项目源码，请关注微信公众号：代码问道获取 ！', 1.00, '本项目源码，关注公众号：代码问道 获取', NULL, NULL, 'CODE', NULL, 0);
