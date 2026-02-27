@@ -45,9 +45,6 @@ public class PayProConfig implements WebMvcConfigurer {
      */
     private Integer qrCodeNum;
 
-    /** 项目下载地址 */
-    private String downloadUrl;
-
     /**
      * 阿里的用户id
      * */
