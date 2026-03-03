@@ -267,7 +267,6 @@ public class OrderServiceImpl implements OrderService {
             // 屏蔽隐私数据
             record.setId("");
             record.setEmail("");
-            record.setTestEmail("");
             record.setPayNum(null);
             record.setMobile(null);
             record.setCustom(null);
