@@ -3,12 +3,15 @@ package com.wendao.controller;
 import cn.hutool.log.StaticLog;
 import com.wendao.config.PayProConfig;
 import com.wendao.entity.Order;
+import com.wendao.exception.ApiException;
 import com.wendao.model.ResponseVO;
 import com.wendao.common.utils.*;
 import com.wendao.enums.OrderStatesEnum;
 import com.wendao.model.req.GetOrderListReq;
+import com.wendao.model.req.OpenApiOrderReq;
 import com.wendao.model.req.OrderReq;
 import com.wendao.model.resp.AddOrderResp;
+import com.wendao.model.resp.OpenApiOrderResp;
 import com.wendao.service.OrderService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -234,5 +237,27 @@ public class OrderController {
 
     public String getOrderId(String id){
         return id;
+    }
+
+    @PostMapping("/api/openapi/orders")
+    @ApiOperation(value = "创建OpenApi订单", notes = "OpenApi通过此接口创建支付订单")
+    @ResponseBody
+    public ResponseVO<OpenApiOrderResp> createOpenApiOrder(@RequestBody @Validated OpenApiOrderReq req) {
+        try {
+            log.info("收到OpenApi订单创建请求 - 订单号: {}, 金额: {}, 支付方式: {}",
+                    req.getOrderNo(), req.getAmount(), req.getPayType());
+
+            OpenApiOrderResp resp = orderService.createOpenApiOrder(req);
+
+            log.info("OpenApi订单创建成功 - 订单ID: {}, 订单号: {}", resp.getOrderId(), resp.getOrderNo());
+
+            return new ResponseVO<>(ApiException.ErrorCode.SUCCESS, "success", resp);
+        } catch (ApiException e) {
+            log.warn("OpenApi订单创建失败 - 错误码: {}, 错误信息: {}", e.getCode(), e.getMessage());
+            return new ResponseVO<>(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            log.error("OpenApi订单创建系统异常", e);
+            return new ResponseVO<>(ApiException.ErrorCode.SYSTEM_ERROR, "系统内部异常");
+        }
     }
 }

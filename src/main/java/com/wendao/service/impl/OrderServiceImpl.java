@@ -4,6 +4,7 @@ import com.wendao.config.PayProConfig;
 import com.wendao.entity.AutoPassPay;
 import com.wendao.entity.Order;
 import com.wendao.entity.PayChatMessage;
+import com.wendao.exception.ApiException;
 import com.wendao.mapper.AutoPassPayMapper;
 import com.wendao.mapper.OrderMapper;
 import com.wendao.mapper.PayChatMessageMapper;
@@ -12,8 +13,10 @@ import com.wendao.dto.MsgContentsDTO;
 import com.wendao.dto.WeChatMsgDTO;
 import com.wendao.enums.OrderStatesEnum;
 import com.wendao.model.req.GetOrderListReq;
+import com.wendao.model.req.OpenApiOrderReq;
 import com.wendao.model.resp.AddOrderResp;
 import com.wendao.model.resp.CountResp;
+import com.wendao.model.resp.OpenApiOrderResp;
 import com.wendao.service.OrderService;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Snowflake;
@@ -27,6 +30,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wendao.utils.OpenApiSignUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +78,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     PayChatMessageMapper payChatMessageMapper;
+
+    @Autowired
+    OpenApiSignUtil openApiSignUtil;
 
     @Override
     public Order getOrderById(String id) {
@@ -291,64 +299,67 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
-    public void autoPass(WeChatMsgDTO dto) {
-
-        QueryWrapper<AutoPassPay> autoPassPayQueryWrapper = new QueryWrapper<>();
-        autoPassPayQueryWrapper.lambda().eq(AutoPassPay::getMessageId, dto.getId());
-        Long l = autoPassPayMapper.selectCount(autoPassPayQueryWrapper);
-        if (l > 0) {
-            return;
+    @Transactional(rollbackFor = Exception.class)
+    public OpenApiOrderResp createOpenApiOrder(OpenApiOrderReq req) {
+        if (!openApiSignUtil.verifyTimestamp(req.getTimestamp())) {
+            throw new ApiException(ApiException.ErrorCode.TIMESTAMP_ERROR, "请求时间戳无效或已过期");
         }
 
-        String desc = dto.getContents().extractRemark();
-        Order byPayNum = null;
-        if (StringUtils.isNotBlank(desc)) {
-            /** 找到匹配的订单*/
-            byPayNum = thisService.getByPayNum(desc,dto.getTime());
-            thisService.pass(byPayNum.getId());
+        if (!openApiSignUtil.verifySign(req)) {
+            throw new ApiException(ApiException.ErrorCode.SIGN_ERROR, "签名验证失败");
         }
 
-        AutoPassPay autoPassPay = new AutoPassPay();
-        autoPassPay.setId(snowflake.nextId());
-        if (byPayNum != null) {
-            autoPassPay.setOrderId(byPayNum.getId());
+        if (req.getAmount() == null || req.getAmount().compareTo(new BigDecimal("0")) <= 0) {
+            throw new ApiException(ApiException.ErrorCode.AMOUNT_ERROR, "金额必须大于0");
         }
-        autoPassPay.setMessageCreateTime(dto.getTime());
-        autoPassPay.setMessageId(dto.getId());
-        autoPassPay.setMessageDesc(desc);
-        autoPassPayMapper.insert(autoPassPay);
+
+        if (req.getAmount().compareTo(new BigDecimal("100000")) > 0) {
+            throw new ApiException(ApiException.ErrorCode.AMOUNT_ERROR, "金额超出限制，单笔订单不能超过100000元");
+        }
+
+        Order existingOrder = orderMapper.selectById(req.getOrderNo());
+        if (existingOrder != null) {
+            throw new ApiException(ApiException.ErrorCode.DUPLICATE_ORDER, "订单号已存在");
+        }
+
+        Order order = new Order();
+        order.setId(req.getOrderNo());
+        order.setMoney(req.getAmount());
+        order.setPayType(req.getPayType());
+        order.setNickName(req.getNickName());
+        order.setEmail(req.getEmail());
+        order.setNotifyUrl(req.getNotifyUrl());
+        order.setUserId(req.getUserId());
+        order.setProductId(req.getProductId());
+        order.setOrderSource("OPENAPI");
+        order.setState(OrderStatesEnum.WAIT_PAY.getState());
+        order.setCreateTime(new Date());
+        order.setPayNum(StringUtils.getRandomNum());
+
+        if (req.getProductId() != null) {
+            int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
+            order.setPayQrNum(i);
+        }
+
+        try {
+            orderMapper.insert(order);
+        } catch (Exception e) {
+            log.error("创建OpenApi订单失败: {}", e.getMessage(), e);
+            throw new ApiException(ApiException.ErrorCode.SYSTEM_ERROR, "创建订单失败");
+        }
+
+        return OpenApiOrderResp.builder()
+                .orderId(order.getId())
+                .orderNo(req.getOrderNo())
+                .amount(req.getAmount())
+                .payType(req.getPayType())
+                .payNum(order.getPayNum())
+                .state(order.getState())
+                .message("订单创建成功")
+                .timestamp(System.currentTimeMillis())
+                .build();
     }
 
-    @Override
-    @Transactional
-    public void autoPass(PayChatMessage dto) {
-
-        String desc = null;
-        if (dto.getPlatformType().equals("weixin")) {
-            MsgContentsDTO bean = JSONUtil.toBean(dto.getContents(), MsgContentsDTO.class);
-            desc = bean.extractRemark();
-            if (StringUtils.isBlank(desc)) {
-                dto.setProcessStatus(2);
-                payChatMessageMapper.updateById(dto);
-                log.info("处理:{}.没有提取到备注" + JSONUtil.toJsonStr(dto));
-                return;
-            }
-        }
-
-        Order byPayNum = null;
-        if (StringUtils.isNotBlank(desc)) {
-            /** 找到匹配的订单*/
-            byPayNum = thisService.getByPayNum(desc,dto.getTime());
-            if (byPayNum != null){
-                thisService.pass(byPayNum.getId());
-                dto.setOrderId(byPayNum.getId());
-                dto.setProcessStatus(1);
-                payChatMessageMapper.updateById(dto);
-            }
-
-        }
-    }
 
     /**
      * 拼接管理员链接
