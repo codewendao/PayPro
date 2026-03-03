@@ -356,14 +356,8 @@ public class OrderServiceImpl implements OrderService {
      */
     public Order getAdminUrl(Order pay, String id, String token, String myToken) {
 
-        String pass = payProConfig.getSite() + "/order/pass?sendType=0&id=" + id + "&token=" + token + "&myToken=" + myToken;
+        String pass = payProConfig.getSite() + "/order/pass?id=" + id + "&token=" + token + "&myToken=" + myToken;
         pay.setPassUrl(pass);
-
-        String pass2 = payProConfig.getSite() + "/order/pass?sendType=1&id=" + id + "&token=" + token + "&myToken=" + myToken;
-        pay.setPassUrl2(pass2);
-
-        String pass3 = payProConfig.getSite() + "/order/pass?sendType=2&id=" + id + "&token=" + token + "&myToken=" + myToken;
-        pay.setPassUrl3(pass3);
 
         String back = payProConfig.getSite() + "/order/back?id=" + id + "&token=" + token + "&myToken=" + myToken;
         pay.setBackUrl(back);

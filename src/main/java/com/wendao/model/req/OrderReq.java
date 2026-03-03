@@ -32,8 +32,6 @@ public class OrderReq implements Serializable {
      */
     private String email;
 
-    private String testEmail;
-
     /**
      * 显示状态 0待审核 1确认显示 2驳回 3通过不展示 4已扫码
      */
@@ -63,41 +61,5 @@ public class OrderReq implements Serializable {
      */
     private String device;
 
-    /**
-     * 生成二维码编号标识token
-     */
-    private String tokenNum;
-
     private String time;
-
-    @JsonIgnore
-    private String passUrl;
-
-    /**
-     * 含小程序
-     */
-    @JsonIgnore
-    private String passUrl2;
-
-    /**
-     * 含xboot
-     */
-    @JsonIgnore
-    private String passUrl3;
-
-    @JsonIgnore
-    private String backUrl;
-
-    @JsonIgnore
-    private String editUrl;
-
-    @JsonIgnore
-    private String delUrl;
-
-    @JsonIgnore
-    private String closeUrl;
-
-    @JsonIgnore
-    private String statistic;
-
 }

@@ -44,8 +44,6 @@ public class Order implements Serializable{
      */
     private String email;
 
-    private String testEmail;
-
     /**
      * 显示状态 0待审核 1确认显示 2驳回 3通过不展示 4已扫码
      */
@@ -83,11 +81,11 @@ public class Order implements Serializable{
      */
     private Long productId;
 
-    /**
-     * 生成二维码编号标识token
-     */
-    @TableField(exist = false)
-    private String tokenNum;
+    /** 订单来源,PRODUCT来自产品表，OTHER其他 */
+    private String orderSource;
+
+    /** 通知地址 */
+    private String notifyUrl;
 
     @TableField(exist = false)
     private String time;
@@ -95,20 +93,6 @@ public class Order implements Serializable{
     @TableField(exist = false)
     @JsonIgnore
     private String passUrl;
-
-    /**
-     * 含小程序
-     */
-    @TableField(exist = false)
-    @JsonIgnore
-    private String passUrl2;
-
-    /**
-     * 含xboot
-     */
-    @TableField(exist = false)
-    @JsonIgnore
-    private String passUrl3;
 
     @TableField(exist = false)
     @JsonIgnore

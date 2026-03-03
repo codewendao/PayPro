@@ -128,7 +128,7 @@ public class OrderController {
 
     /**
      * @description 审核通过。
-     * @param id, token, myToken, sendType, model
+     * @param id, token, myToken, model
      * @return java.lang.String
     */
     @RequestMapping(value = "/order/pass",method = RequestMethod.GET)
@@ -137,7 +137,6 @@ public class OrderController {
     public String pass(@RequestParam String id,
                          @RequestParam String token,
                          @RequestParam String myToken,
-                         @RequestParam String sendType,
                          Model model){
 
         String temp=redisTemplate.opsForValue().get(id);
