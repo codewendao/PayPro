@@ -230,6 +230,8 @@ public class OrderServiceImpl implements OrderService {
             }
         } else if (pay.getOrderSource().equals("OPENAPI")) {
             callbackFaka(pay.getNotifyUrl(),pay.getId(),pay.getMoney(),pay.getPayNum());
+            pay.setState(OrderStatesEnum.SUCCESS_PAY.getState());
+            orderMapper.updateById(pay);
         }
         return 1;
     }
