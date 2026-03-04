@@ -243,6 +243,7 @@ createApp({
                     if(resp.code==200){
                         if(resp.data==1){ this.paymentStatus='success'; clearInterval(this.countdownTimer); clearInterval(timer); }
                         else if(resp.data==2){ this.paymentStatus='failed'; clearInterval(timer); }
+                        else if(resp.data==5){ this.paymentStatus='timeout'; clearInterval(this.countdownTimer); clearInterval(timer); }
                     }
                 }catch(e){
                 }

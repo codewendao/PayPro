@@ -12,6 +12,8 @@ public enum OrderStatesEnum {
 
     SCANE_QR(4,"已扫码"),
 
+    EXPIRED(5,"已过期"),
+
 
     ;
 

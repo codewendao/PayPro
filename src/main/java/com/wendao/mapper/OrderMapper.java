@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author lld
  */
 public interface OrderMapper extends BaseMapper<Order> {
 

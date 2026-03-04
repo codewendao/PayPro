@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @author lld
  */
 @TableName("t_order")
 @Data
@@ -83,6 +82,10 @@ public class Order implements Serializable{
 
     /** 订单来源,PRODUCT来自产品表，OTHER其他 */
     private String orderSource;
+
+
+    /** 过期时间 */
+    private Date expireTime;
 
     /** 通知地址 */
     private String notifyUrl;

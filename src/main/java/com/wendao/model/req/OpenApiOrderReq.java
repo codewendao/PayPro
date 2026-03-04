@@ -39,4 +39,7 @@ public class OpenApiOrderReq implements Serializable {
 
     /** 是否是自定义金额 */
     private Boolean custom;
+
+    /** 过期时间（秒） */
+    private Integer expireSeconds;
 }

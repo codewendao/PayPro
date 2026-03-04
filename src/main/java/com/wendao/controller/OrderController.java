@@ -29,10 +29,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author lld
  */
 @Controller
 @Api(tags = "开放接口",description = "订单管理")
@@ -67,10 +67,21 @@ public class OrderController {
     public ResponseVO getOrderState(@PathVariable String id){
         Order order=null;
         try {
-            order = orderService.getOrderById(getOrderId(id));
+            order = orderService.getOrderById(id);
         }catch (Exception e){
             return ResponseVO.errorResponse("获取支付数据失败");
         }
+
+        // 检查订单是否已过期
+        if (order.getExpireTime() != null && order.getExpireTime().before(new Date())) {
+            // 如果订单状态是待支付，则更新为已过期
+            if (order.getState().equals(OrderStatesEnum.WAIT_PAY.getState())) {
+                order.setState(OrderStatesEnum.EXPIRED.getState());
+                orderService.updateOrder(order);
+            }
+            return ResponseVO.successResponse(OrderStatesEnum.EXPIRED.getState());
+        }
+
         return ResponseVO.successResponse(order.getState());
     }
 

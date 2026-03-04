@@ -24,6 +24,7 @@
 | userId | String | 否 | 用户ID                                     |
 | productId | Long | 否 | 产品ID                                     |
 | timestamp | Long | 是 | 请求时间戳（毫秒），有效期5分钟                         |
+| expireSeconds | Integer | 否 | 过期时间（秒），订单将在该时间后过期                   |
 | sign | String | 是 | MD5签名                                    |
 
 ## 签名算法
@@ -129,6 +130,7 @@ curl -X POST http://localhost:8892/api/openapi/add \
     "productId": 1,
     "notifyUrl": "http://example.com/notify",
     "timestamp": 1733232000000,
+    "expireSeconds": 3600,
     "sign": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   }'
 ```
@@ -157,6 +159,7 @@ public class ExternalOrderClient {
         params.put("productId", 1);
         params.put("notifyUrl", "http://example.com/notify");
         params.put("timestamp", System.currentTimeMillis());
+        params.put("expireSeconds", 3600); // 过期时间为1小时
 
         String sign = generateSign(params);
         params.put("sign", sign);

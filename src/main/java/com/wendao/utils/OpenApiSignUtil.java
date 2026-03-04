@@ -65,11 +65,12 @@ public class OpenApiSignUtil {
         params.put("userId", req.getUserId());
         params.put("productId", req.getProductId());
         params.put("timestamp", req.getTimestamp());
+        params.put("expireSeconds", req.getExpireSeconds());
 
-        log.info("服务端接收到的参数: orderNo={}, amount={}, payType={}, nickName={}, description={}, email={}, notifyUrl={}, userId={}, productId={}, timestamp={}",
+        log.info("服务端接收到的参数: orderNo={}, amount={}, payType={}, nickName={}, description={}, email={}, notifyUrl={}, userId={}, productId={}, timestamp={}, expireSeconds={}",
                 req.getOrderNo(), req.getAmount(), req.getPayType(), req.getNickName(),
                 req.getDescription(), req.getEmail(), req.getNotifyUrl(), req.getUserId(),
-                req.getProductId(), req.getTimestamp());
+                req.getProductId(), req.getTimestamp(), req.getExpireSeconds());
         log.info("服务端接收到的签名: {}", req.getSign());
 
         // 检查 notifyUrl 是否包含空格
