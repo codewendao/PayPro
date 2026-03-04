@@ -89,6 +89,8 @@ paypro:
     value: 123
     expire: 14
   qrCodeNum: 2
+  openapi:
+    secret: your_openapi_secret_key_here
   payMethods:
     - id: 'alipay'
       name: '支付宝支付'
