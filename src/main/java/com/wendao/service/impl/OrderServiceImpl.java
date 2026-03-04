@@ -1,16 +1,11 @@
 package com.wendao.service.impl;
 
+import cn.hutool.http.HttpUtil;
 import com.wendao.config.PayProConfig;
-import com.wendao.entity.AutoPassPay;
 import com.wendao.entity.Order;
-import com.wendao.entity.PayChatMessage;
 import com.wendao.exception.ApiException;
-import com.wendao.mapper.AutoPassPayMapper;
 import com.wendao.mapper.OrderMapper;
-import com.wendao.mapper.PayChatMessageMapper;
 import com.wendao.mapper.ProductMapper;
-import com.wendao.dto.MsgContentsDTO;
-import com.wendao.dto.WeChatMsgDTO;
 import com.wendao.enums.OrderStatesEnum;
 import com.wendao.model.req.GetOrderListReq;
 import com.wendao.model.req.OpenApiOrderReq;
@@ -24,7 +19,6 @@ import com.wendao.entity.Product;
 import com.wendao.model.ResponseVO;
 import com.wendao.common.utils.*;
 import com.wendao.model.req.OrderReq;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -73,13 +67,7 @@ public class OrderServiceImpl implements OrderService {
     ProductMapper productMapper;
 
     @Autowired
-    AutoPassPayMapper autoPassPayMapper;
-
-    @Autowired
     Snowflake snowflake;
-
-    @Autowired
-    PayChatMessageMapper payChatMessageMapper;
 
     @Autowired
     OpenApiSignUtil openApiSignUtil;
@@ -232,7 +220,7 @@ public class OrderServiceImpl implements OrderService {
     public int pass(String id) {
         //Pay pay = thisService.changePayState(id, 1);
         Order pay = orderMapper.selectById(id);
-        if (pay.getProductId() != null) {
+        if (pay.getOrderSource().equals("PRODUCT") && pay.getProductId() != null) {
             Product product = productMapper.selectById(pay.getProductId());
             if (product.getType().equals("CODE")) {
                 emailUtils.sendTemplateMail(payProConfig.getEmail().getSender(), pay.getEmail(), "【Pay个人收款支付系统】支付成功通知（附下载链接）",
@@ -240,6 +228,8 @@ public class OrderServiceImpl implements OrderService {
                 pay.setState(OrderStatesEnum.SUCCESS_PAY.getState());
                 orderMapper.updateById(pay);
             }
+        } else if (pay.getOrderSource().equals("OPENAPI")) {
+            callbackFaka(pay.getNotifyUrl(),pay.getId(),pay.getMoney(),pay.getPayNum());
         }
         return 1;
     }
@@ -379,6 +369,11 @@ public class OrderServiceImpl implements OrderService {
             throw new ApiException(ApiException.ErrorCode.SYSTEM_ERROR, "创建订单失败");
         }
 
+        String tokenAdmin = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set(order.getId(), tokenAdmin, payProConfig.getToken().getExpire(), TimeUnit.DAYS);
+        order = getAdminUrl(order, order.getId(), tokenAdmin, payProConfig.getToken().getValue());
+        emailUtils.sendTemplateMail(payProConfig.getEmail().getSender(), payProConfig.getEmail().getReceiver(), "【OPENAPI】待审核处理", "payment-review", order);
+
         return OpenApiOrderResp.builder()
                 .orderId(order.getId())
                 .orderNo(req.getOrderNo())
@@ -439,5 +434,17 @@ public class OrderServiceImpl implements OrderService {
         String statistic = payProConfig.getSite() + "/statistic?myToken=" + myToken;
         pay.setStatistic(statistic);
         return pay;
+    }
+
+    public void callbackFaka(String notifyUrl, String orderNo, BigDecimal amount, String payNum) {
+        Map<String, Object> params = new TreeMap<>();
+        params.put("orderNo", orderNo);
+        params.put("amount", amount);
+        params.put("payNum", payNum);
+
+        // 生成签名
+        String sign = openApiSignUtil.generateSign(params);
+        params.put("sign", sign);
+        HttpUtil.post(notifyUrl, com.alibaba.fastjson2.JSONObject.toJSONString(params));
     }
 }

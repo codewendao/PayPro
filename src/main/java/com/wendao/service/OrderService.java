@@ -1,11 +1,9 @@
 package com.wendao.service;
 
 import com.wendao.entity.Order;
-import com.wendao.entity.PayChatMessage;
 import com.wendao.model.req.OpenApiOrderReq;
 import com.wendao.model.resp.CountResp;
 import com.wendao.model.ResponseVO;
-import com.wendao.dto.WeChatMsgDTO;
 import com.wendao.model.req.GetOrderListReq;
 import com.wendao.model.req.OrderReq;
 import com.wendao.model.resp.AddOrderResp;
@@ -14,7 +12,6 @@ import com.wendao.model.resp.OpenApiOrderResp;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author lld
