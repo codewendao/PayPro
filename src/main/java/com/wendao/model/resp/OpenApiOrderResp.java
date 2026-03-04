@@ -29,4 +29,8 @@ public class OpenApiOrderResp implements Serializable {
     private String message;
 
     private Long timestamp;
+
+    private String qrCodeUrl;
+
+    private String returnUrl;
 }

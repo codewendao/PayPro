@@ -35,4 +35,8 @@ public class OpenApiOrderReq implements Serializable {
     private String sign;
 
     private Long timestamp;
+
+
+    /** 是否是自定义金额 */
+    private Boolean custom;
 }

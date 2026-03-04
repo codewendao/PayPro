@@ -89,3 +89,32 @@ paypro:
     value: 123
     expire: 14
   qrCodeNum: 2
+  payMethods:
+    - id: 'alipay'
+      name: '支付宝支付'
+      description: '免输备注，手动收款'
+      icon: '🔵'
+      status: true
+      allow-night: false
+      use-local-qr-code: false
+    - id: 'wechat'
+      name: '微信支付'
+      description: '需备注，自动确认收款'
+      icon: '🟢'
+      status: true
+      allow-night: true
+      use-local-qr-code: true
+    - id: 'wechat_zs'
+      name: '微信赞赏码支付'
+      description: '需备注，自动确认收款'
+      icon: '🟢'
+      status: true
+      allow-night: false
+      use-local-qr-code: true
+    - id: 'alipay_dmf'
+      name: '支付宝当面付'
+      description: '支付宝官方产品，无需营业执照，免备注自动收款'
+      icon: '🔵'
+      status: true
+      allow-night: true
+      use-local-qr-code: false

@@ -6,7 +6,7 @@
 
 ## 接口信息
 
-- **接口路径**: `POST /api/openapi/orders`
+- **接口路径**: `POST /api/openapi/add`
 - **请求方法**: POST
 - **Content-Type**: application/json
 
@@ -62,17 +62,32 @@ MD5签名：`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
   "code": 200,
   "msg": "success",
   "data": {
-    "orderId": "uuid-generated-id",
     "orderNo": "EXT20250303001",
     "amount": 10.00,
     "payType": "alipay",
     "payNum": "随机支付标识",
     "state": 0,
     "message": "订单创建成功",
-    "timestamp": 1733232000000
+    "timestamp": 1733232000000,
+    "qrCodeUrl": "支付二维码URL",
+    "returnUrl": "支付完成返回URL"
   }
 }
 ```
+
+### 返回值说明
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| orderNo | String | 外部订单号 |
+| amount | BigDecimal | 订单金额 |
+| payType | String | 支付方式（alipay/wechat/alipay_dmf/wechat_zs） |
+| payNum | String | 支付标识，用于后续查询订单 |
+| state | Integer | 订单状态（0-待支付，1-已支付，2-已失败，3-已支付，4-已扫码） |
+| message | String | 处理结果消息 |
+| timestamp | Long | 系统处理完成时间戳（毫秒） |
+| qrCodeUrl | String | 支付二维码URL，用于展示支付二维码 |
+| returnUrl | String | 跳转url，可以跳转至改地址进行后续处理 |
 
 ### 失败响应
 
@@ -101,7 +116,7 @@ MD5签名：`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
 ### cURL 示例
 
 ```bash
-curl -X POST http://localhost:8889/api/openapi/orders \
+curl -X POST http://localhost:8892/api/openapi/add \
   -H "Content-Type: application/json" \
   -d '{
     "orderNo": "EXT20250303001",
@@ -126,10 +141,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.crypto.SecureUtil;
 
 public class ExternalOrderClient {
-    
-    private static final String API_URL = "http://localhost:8889/api/openapi/orders";
+
+    private static final String API_URL = "http://localhost:8892/api/openapi/add";
     private static final String SECRET_KEY = "your_openapi_secret_key_here";
-    
+
     public static void main(String[] args) {
         JSONObject params = new JSONObject();
         params.put("orderNo", "EXT20250303001");
@@ -142,23 +157,23 @@ public class ExternalOrderClient {
         params.put("productId", 1);
         params.put("notifyUrl", "http://example.com/notify");
         params.put("timestamp", System.currentTimeMillis());
-        
+
         String sign = generateSign(params);
         params.put("sign", sign);
-        
+
         String response = HttpRequest.post(API_URL)
-            .header("Content-Type", "application/json")
-            .body(params.toString())
-            .execute()
-            .body();
-        
+                .header("Content-Type", "application/json")
+                .body(params.toString())
+                .execute()
+                .body();
+
         System.out.println(response);
     }
-    
+
     private static String generateSign(JSONObject params) {
         List<String> keys = new ArrayList<>(params.keySet());
         Collections.sort(keys);
-        
+
         StringBuilder sb = new StringBuilder();
         for (String key : keys) {
             Object value = params.get(key);
@@ -167,7 +182,7 @@ public class ExternalOrderClient {
             }
         }
         sb.append("key=").append(SECRET_KEY);
-        
+
         return SecureUtil.md5(sb.toString()).toUpperCase();
     }
 }

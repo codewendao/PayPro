@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +83,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OpenApiSignUtil openApiSignUtil;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Override
     public Order getOrderById(String id) {
@@ -336,11 +341,37 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setPayNum(StringUtils.getRandomNum());
 
-        if (req.getProductId() != null) {
-            int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
-            order.setPayQrNum(i);
-        }
+        String qrUrl = "";
 
+        int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
+        order.setPayQrNum(i);
+        /** 查看二维码是否存在 */
+        boolean b = checkQrFileExists(req.getPayType(), req.getAmount(), i);
+
+        // 格式化金额为两位小数
+        String formattedAmount = String.format("%.2f", req.getAmount());
+
+        /** 如果不存在 */
+        if(!b) {
+            qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
+                    formattedAmount + "/" + i + ".png";
+            req.setCustom(false);
+        } else {
+            qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" + "custom.png";
+            req.setCustom(true);
+        }
+        // 获取支付类型配置
+        Boolean useLocalQrCodeConfig = payProConfig.getUseLocalQrCode(req.getPayType());
+        String returnUrl = payProConfig.getSite() + "/payment.html?" +
+                "orderId=" + req.getOrderNo() +
+                "&money=" + req.getAmount() +
+                "&payType=" + req.getPayType() +
+                "&payNum=" + order.getPayNum() +
+                "&customerQr=" + req.getCustom() +
+                "&picName=" + formattedAmount +
+                "&qrCode=" + "undefined" +
+                "&payQrNum=" + i +
+                "&useLocalQrCode=" + useLocalQrCodeConfig;
         try {
             orderMapper.insert(order);
         } catch (Exception e) {
@@ -356,8 +387,32 @@ public class OrderServiceImpl implements OrderService {
                 .payNum(order.getPayNum())
                 .state(order.getState())
                 .message("订单创建成功")
+                .qrCodeUrl(qrUrl)
+                .returnUrl(returnUrl)
                 .timestamp(System.currentTimeMillis())
                 .build();
+    }
+
+    /**
+     * 检查指定支付类型和金额的二维码文件是否存在
+     *
+     * @param payType 支付类型，如 "wechat"、"alipay"，需与文件夹名称匹配
+     * @param amount  金额，将格式化为两位小数作为文件夹名
+     * @param qrNum   二维码编号，用于构建文件名
+     * @return 文件存在返回 true，否则返回 false
+     */
+    private boolean checkQrFileExists(String payType, BigDecimal amount, int qrNum) {
+        // 格式化金额为两位小数，与文件夹名称一致
+        String amountStr = String.format("%.2f", amount);
+        // 构建文件路径：static/qr/{payType}/{amount}/{qrNum}.png
+        String filePath = "classpath:static/qr/" + payType.toLowerCase() + "/" + amountStr + "/" + qrNum + ".png";
+        try {
+            Resource resource = resourceLoader.getResource(filePath);
+            return resource.exists();
+        } catch (Exception e) {
+            // 记录日志或处理异常
+            return false;
+        }
     }
 
 

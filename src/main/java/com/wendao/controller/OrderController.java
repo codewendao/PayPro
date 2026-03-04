@@ -239,7 +239,7 @@ public class OrderController {
         return id;
     }
 
-    @PostMapping("/api/openapi/orders")
+    @PostMapping("/api/openapi/add")
     @ApiOperation(value = "创建OpenApi订单", notes = "OpenApi通过此接口创建支付订单")
     @ResponseBody
     public ResponseVO<OpenApiOrderResp> createOpenApiOrder(@RequestBody @Validated OpenApiOrderReq req) {
@@ -259,5 +259,12 @@ public class OrderController {
             log.error("OpenApi订单创建系统异常", e);
             return new ResponseVO<>(ApiException.ErrorCode.SYSTEM_ERROR, "系统内部异常");
         }
+    }
+
+    @PostMapping("/getPayMethods")
+    @ApiOperation(value = "获取支付信息配置", notes = "获取支付信息配置")
+    @ResponseBody
+    public ResponseVO<PayProConfig.PayMethod> getPayMethods() {
+        return ResponseVO.successResponse(payProConfig.getPayMethods());
     }
 }
