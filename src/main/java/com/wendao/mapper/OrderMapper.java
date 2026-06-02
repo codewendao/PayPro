@@ -35,7 +35,7 @@ public interface OrderMapper extends BaseMapper<Order> {
      */
     @Select("SELECT * FROM t_order WHERE actual_amount = #{actualAmount} " +
             "AND match_mode = 'DECREMENT' " +
-            "AND state = 0 " +
+            "AND state IN (0, 4) " +
             "AND create_time BETWEEN #{startTime} AND #{endTime} " +
             "ORDER BY create_time ASC LIMIT 1")
     Order getDecrementOrderByAmount(BigDecimal actualAmount, Date startTime, Date endTime);
