@@ -11,7 +11,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wendao.model.resp.OpenApiOrderResp;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author
@@ -69,8 +71,16 @@ public interface OrderService {
 
     IPage<Order> list(GetOrderListReq req);
 
-    Order getByPayNum(String desc, Date time);
-
     OpenApiOrderResp createOpenApiOrder(OpenApiOrderReq req);
+
+    /**
+     * 减额匹配: 根据实际支付金额查找订单(用于自动匹配)
+     */
+    Order getByActualAmount(BigDecimal actualAmount, Date startTime, Date endTime);
+
+    /**
+     * 获取指定基础金额的已占用减额槽位索引集合
+     */
+    Set<Integer> getOccupiedDecrementSlots(String payType, BigDecimal baseAmount);
 
 }

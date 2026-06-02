@@ -86,6 +86,13 @@ public class OrderServiceImpl implements OrderService {
         pay.setId(UUID.randomUUID().toString().replace("-", ""));
         pay.setCreateTime(new Date());
         pay.setState(OrderStatesEnum.WAIT_PAY.getState());
+        // 如果未设置匹配模式，默认为备注模式
+        if (pay.getMatchMode() == null) {
+            pay.setMatchMode("REMARK");
+        }
+        if (pay.getActualAmount() == null) {
+            pay.setActualAmount(pay.getMoney());
+        }
         orderMapper.insert(pay);
         return 1;
     }
@@ -178,15 +185,74 @@ public class OrderServiceImpl implements OrderService {
         Order entity = new Order();
         BeanUtils.copyProperties(req, entity);
 
-        try {
-            if (req.getCustom() != null && !req.getCustom()) {
-                //自定义金额生成四位数随机标识
-                int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
-                entity.setPayQrNum(i);
+        // --- 减额匹配逻辑 ---
+        PayProConfig.Decrement decrementConfig = payProConfig.getDecrement();
+        boolean isCustomAmount = req.getCustom() != null && req.getCustom();
+        boolean isLocalQr = payProConfig.getUseLocalQrCode(req.getPayType());
+        boolean useDecrement = decrementConfig.isEnabled()
+                && !isCustomAmount
+                && isLocalQr
+                && !"wechat_zs".equals(req.getPayType());
+
+        String matchMode = "REMARK";
+        BigDecimal actualAmount = req.getMoney();
+        Integer decrementIndex = null;
+        boolean fallbackToRemark = false;
+
+        if (useDecrement) {
+            String lockKey = getDecrementLockKey(
+                    req.getPayType(), String.format("%.2f", req.getMoney()));
+            Boolean locked = null;
+            int retries = 3;
+            while (retries > 0) {
+                locked = redisTemplate.opsForValue()
+                        .setIfAbsent(lockKey, "1", 5, TimeUnit.SECONDS);
+                if (Boolean.TRUE.equals(locked)) {
+                    break;
+                }
+                try { Thread.sleep(100); } catch (InterruptedException e) { break; }
+                retries--;
             }
 
-            entity.setPayNum(StringUtils.getRandomNum());
+            try {
+                DecrementSlotResult slotResult = tryAllocateDecrementSlot(
+                        req.getPayType(), req.getMoney(), decrementConfig);
 
+                if (!slotResult.isFallbackToRemark()) {
+                    matchMode = "DECREMENT";
+                    actualAmount = slotResult.getActualAmount();
+                    decrementIndex = slotResult.getSlotIndex();
+                } else {
+                    matchMode = "REMARK";
+                    actualAmount = slotResult.getActualAmount(); // base + step
+                    fallbackToRemark = true;
+                }
+            } finally {
+                if (Boolean.TRUE.equals(locked)) {
+                    redisTemplate.delete(lockKey);
+                }
+            }
+        }
+
+        entity.setMatchMode(matchMode);
+        entity.setActualAmount(actualAmount);
+        entity.setDecrementIndex(decrementIndex);
+        // --- 减额匹配逻辑结束 ---
+
+        try {
+            if (!isCustomAmount) {
+                int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
+                entity.setPayQrNum(i);
+            } else {
+                entity.setPayQrNum(1);
+            }
+
+            // 减额模式(非回退)不需要备注, 其他模式需要生成payNum
+            if ("DECREMENT".equals(matchMode) && !fallbackToRemark) {
+                entity.setPayNum(null);
+            } else {
+                entity.setPayNum(StringUtils.getRandomNum());
+            }
             thisService.addOrder(entity);
         } catch (Exception e) {
             log.error(e.toString());
@@ -207,7 +273,10 @@ public class OrderServiceImpl implements OrderService {
         addPayResp.setPayType(entity.getPayType());
         addPayResp.setMoney(entity.getMoney());
         addPayResp.setPayQrNum(entity.getPayQrNum());
-        addPayResp.setCustom(entity.getCustom());
+        addPayResp.setCustom(isCustomAmount || fallbackToRemark);
+        addPayResp.setMatchMode(matchMode);
+        addPayResp.setActualAmount(actualAmount);
+        addPayResp.setFallbackToRemark(fallbackToRemark);
         return ResponseVO.successResponse(addPayResp);
     }
 
@@ -280,21 +349,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getByPayNum(String desc, Date time) {
-        // 获取当天的00:00:00
-        Date todayStart = DateUtil.beginOfDay(time);
-        // 获取前一天的00:00:00
-        Date yesterdayStart = DateUtil.beginOfDay(DateUtil.offsetDay(time, -1));
-
-        QueryWrapper<Order> payQueryWrapper = new QueryWrapper<>();
-        payQueryWrapper.lambda()
-                .eq(Order::getPayNum, desc)
-                // 添加时间范围条件：从前一天00:00:00到今天00:00:00
-                .between(Order::getCreateTime, yesterdayStart, todayStart);
-        return orderMapper.selectOne(payQueryWrapper);
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public OpenApiOrderResp createOpenApiOrder(OpenApiOrderReq req) {
         if (!openApiSignUtil.verifyTimestamp(req.getTimestamp())) {
@@ -330,39 +384,120 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderSource("OPENAPI");
         order.setState(OrderStatesEnum.WAIT_PAY.getState());
         order.setCreateTime(new Date());
-        order.setPayNum(StringUtils.getRandomNum());
+
+
+        // --- 减额匹配逻辑(OpenAPI) ---
+        PayProConfig.Decrement decrementConfig = payProConfig.getDecrement();
+        boolean isCustomAmount = req.getCustom() != null && req.getCustom();
+        boolean isLocalQr = payProConfig.getUseLocalQrCode(req.getPayType());
+        boolean useDecrement = decrementConfig.isEnabled()
+                && !isCustomAmount
+                && isLocalQr
+                && !"wechat_zs".equals(req.getPayType());
+
+        String matchMode = "REMARK";
+        BigDecimal actualAmount = req.getAmount();
+        Integer decrementIndex = null;
+        boolean fallbackToRemark = false;
+
+        if (useDecrement) {
+            String lockKey = getDecrementLockKey(
+                    req.getPayType(), String.format("%.2f", req.getAmount()));
+            Boolean locked = false;
+            int retries = 3;
+            while (retries > 0) {
+                locked = redisTemplate.opsForValue()
+                        .setIfAbsent(lockKey, "1", 5, TimeUnit.SECONDS);
+                if (Boolean.TRUE.equals(locked)) { break; }
+                try { Thread.sleep(100); } catch (InterruptedException e) { break; }
+                retries--;
+            }
+
+            try {
+                DecrementSlotResult slotResult = tryAllocateDecrementSlot(
+                        req.getPayType(), req.getAmount(), decrementConfig);
+
+                if (!slotResult.isFallbackToRemark()) {
+                    matchMode = "DECREMENT";
+                    actualAmount = slotResult.getActualAmount();
+                    decrementIndex = slotResult.getSlotIndex();
+                } else {
+                    matchMode = "REMARK";
+                    actualAmount = slotResult.getActualAmount();
+                    fallbackToRemark = true;
+                }
+            } finally {
+                if (Boolean.TRUE.equals(locked)) {
+                    redisTemplate.delete(lockKey);
+                }
+            }
+        }
+
+        order.setMatchMode(matchMode);
+        order.setActualAmount(actualAmount);
+        order.setDecrementIndex(decrementIndex);
+
+        // 减额模式(非回退)不需要备注
+        if ("DECREMENT".equals(matchMode) && !fallbackToRemark) {
+            order.setPayNum(null);
+        } else {
+            order.setPayNum(StringUtils.getRandomNum());
+        }
+        // --- 减额匹配逻辑结束 ---
 
         String qrUrl = "";
 
         int i = new Random().nextInt(payProConfig.getQrCodeNum()) + 1;
         order.setPayQrNum(i);
         /** 查看二维码是否存在 */
-        boolean b = checkQrFileExists(req.getPayType(), req.getAmount(), i);
 
         // 格式化金额为两位小数
         String formattedAmount = String.format("%.2f", req.getAmount());
+        String actualFormattedAmount = String.format("%.2f", actualAmount);
 
         /** 如果不存在 */
-        if(!b) {
+        // 减额模式或回退模式: 放在基础金额目录下; 普通备注模式: 检查金额QR是否存在
+        if ("DECREMENT".equals(matchMode) && !fallbackToRemark) {
+            if (actualAmount.compareTo(req.getAmount()) == 0) {
+                qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
+                        formattedAmount + "/" + i + ".png";
+            } else {
+                qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
+                        formattedAmount + "/" + actualFormattedAmount + "/" + i + ".png";
+            }
+            req.setCustom(false);
+        } else if (fallbackToRemark) {
+            // 回退模式: 复用原价二维码，靠备注区分
             qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
                     formattedAmount + "/" + i + ".png";
-            req.setCustom(false);
-        } else {
-            qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" + "custom.png";
             req.setCustom(true);
+        } else {
+            boolean b = checkQrFileExists(req.getPayType(), req.getAmount(), i);
+            if (!b) {
+                qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
+                        formattedAmount + "/" + i + ".png";
+                req.setCustom(false);
+            } else {
+                qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" + "custom.png";
+                req.setCustom(true);
+            }
         }
+
         // 获取支付类型配置
         Boolean useLocalQrCodeConfig = payProConfig.getUseLocalQrCode(req.getPayType());
         String returnUrl = payProConfig.getSite() + "/payment.html?" +
                 "orderId=" + req.getOrderNo() +
                 "&money=" + req.getAmount() +
                 "&payType=" + req.getPayType() +
-                "&payNum=" + order.getPayNum() +
-                "&customerQr=" + req.getCustom() +
+                "&payNum=" + (order.getPayNum() != null ? order.getPayNum() : "") +
+                "&customerQr=" + (req.getCustom() || fallbackToRemark) +
                 "&picName=" + formattedAmount +
                 "&qrCode=" + "undefined" +
                 "&payQrNum=" + i +
-                "&useLocalQrCode=" + useLocalQrCodeConfig;
+                "&useLocalQrCode=" + useLocalQrCodeConfig +
+                "&matchMode=" + matchMode +
+                "&actualAmount=" + actualFormattedAmount +
+                "&fallbackToRemark=" + fallbackToRemark;
         try {
             orderMapper.insert(order);
         } catch (Exception e) {
@@ -386,6 +521,9 @@ public class OrderServiceImpl implements OrderService {
                 .qrCodeUrl(qrUrl)
                 .returnUrl(returnUrl)
                 .timestamp(System.currentTimeMillis())
+                .matchMode(matchMode)
+                .actualAmount(actualAmount)
+                .fallbackToRemark(fallbackToRemark)
                 .build();
     }
 
@@ -448,4 +586,146 @@ public class OrderServiceImpl implements OrderService {
         params.put("sign", sign);
         HttpUtil.post(notifyUrl, com.alibaba.fastjson2.JSONObject.toJSONString(params));
     }
+    // ==================== 减额匹配相关方法 ====================
+
+    /**
+     * 减额匹配槽位分配结果
+     */
+    @lombok.Data
+    private static class DecrementSlotResult {
+        private boolean success;
+        private boolean fallbackToRemark;
+        private int slotIndex;
+        private BigDecimal actualAmount;
+    }
+
+    /**
+     * 尝试分配减额槽位
+     * maxCount = 向下递减次数(不含基准价)
+     * 例如 maxCount=2: 槽位0=5.00, 槽位1=4.99, 槽位2=4.98
+     *
+     * @param payType    支付类型
+     * @param baseAmount 基础金额(原始订单金额)
+     * @param config     减额配置
+     * @return 槽位分配结果
+     */
+    private DecrementSlotResult tryAllocateDecrementSlot(
+            String payType, BigDecimal baseAmount, PayProConfig.Decrement config) {
+
+        BigDecimal step = config.getStep();
+        int maxCount = config.getMaxCount();
+
+        // 收集已占用的槽位索引
+        Set<Integer> occupiedSlots = new HashSet<>();
+        for (int i = 0; i <= maxCount; i++) {
+            BigDecimal slotAmount = baseAmount.subtract(step.multiply(new BigDecimal(i)));
+            // 实际金额必须 > 0
+            if (slotAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                occupiedSlots.add(i);
+                continue;
+            }
+            // 检查该金额的QR码文件是否存在(任意编号)
+            if (!checkAnyQrFileExists(payType, baseAmount, slotAmount)) {
+                log.warn("减额槽位{}金额{}的QR码文件不存在，跳过该槽位", i, String.format("%.2f", slotAmount));
+                occupiedSlots.add(i);
+                continue;
+            }
+            // 查询该金额下是否有活跃订单
+            List<Order> activeOrders = orderMapper.selectList(
+                    new LambdaQueryWrapper<Order>()
+                            .eq(Order::getActualAmount, slotAmount)
+                            .eq(Order::getMatchMode, "DECREMENT")
+                            .in(Order::getState, 0, 4));
+            if (activeOrders != null && !activeOrders.isEmpty()) {
+                occupiedSlots.add(i);
+            }
+        }
+
+        // 找第一个可用槽位
+        for (int i = 0; i <= maxCount; i++) {
+            if (!occupiedSlots.contains(i)) {
+                BigDecimal actualAmount = baseAmount.subtract(step.multiply(new BigDecimal(i)));
+                DecrementSlotResult result = new DecrementSlotResult();
+                result.setSuccess(true);
+                result.setSlotIndex(i);
+                result.setActualAmount(actualAmount);
+                result.setFallbackToRemark(false);
+                return result;
+            }
+        }
+
+        // 所有槽位被占用 -- 回退到备注模式
+        DecrementSlotResult result = new DecrementSlotResult();
+        result.setSuccess(true);
+        result.setFallbackToRemark(true);
+        // 回退使用原价，靠备注区分
+        result.setActualAmount(baseAmount);
+        return result;
+    }
+
+    /**
+     * 检查指定支付类型和金额下是否有任意QR码文件存在(使用正确的assets/qr路径)
+     * 减额二维码放在基础金额目录下: {payType}/{baseAmount}/{amount}/{qrNum}.png
+     * 槽位0(金额等于基础金额)保持原有路径: {payType}/{baseAmount}/{qrNum}.png
+     */
+    private boolean checkAnyQrFileExists(String payType, BigDecimal baseAmount, BigDecimal amount) {
+        String baseAmountStr = String.format("%.2f", baseAmount);
+        String amountStr = String.format("%.2f", amount);
+        for (int i = 1; i <= payProConfig.getQrCodeNum(); i++) {
+            String filePath;
+            if (amount.compareTo(baseAmount) == 0) {
+                // 槽位0: 基础金额目录下直接放二维码
+                filePath = "classpath:static/assets/qr/" + payType.toLowerCase()
+                        + "/" + baseAmountStr + "/" + i + ".png";
+            } else {
+                // 减额槽位: 放在基础金额目录下的子目录
+                filePath = "classpath:static/assets/qr/" + payType.toLowerCase()
+                        + "/" + baseAmountStr + "/" + amountStr + "/" + i + ".png";
+            }
+            try {
+                Resource resource = resourceLoader.getResource(filePath);
+                if (resource.exists()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // ignore, try next
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Order getByActualAmount(BigDecimal actualAmount, Date startTime, Date endTime) {
+        return orderMapper.getDecrementOrderByAmount(actualAmount, startTime, endTime);
+    }
+
+    @Override
+    public Set<Integer> getOccupiedDecrementSlots(String payType, BigDecimal baseAmount) {
+        PayProConfig.Decrement config = payProConfig.getDecrement();
+        if (config == null || !config.isEnabled()) {
+            return Collections.emptySet();
+        }
+        Set<Integer> occupied = new HashSet<>();
+        BigDecimal step = config.getStep();
+        for (int i = 0; i <= config.getMaxCount(); i++) {
+            BigDecimal slotAmount = baseAmount.subtract(step.multiply(new BigDecimal(i)));
+            if (slotAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
+            List<Order> orders = orderMapper.selectList(
+                    new LambdaQueryWrapper<Order>()
+                            .eq(Order::getActualAmount, slotAmount)
+                            .eq(Order::getMatchMode, "DECREMENT")
+                            .in(Order::getState, 0, 4));
+            if (orders != null && !orders.isEmpty()) {
+                occupied.add(i);
+            }
+        }
+        return occupied;
+    }
+
+    public static String getDecrementLockKey(String payType, String baseAmount) {
+        return "pay:decrement_lock:" + payType + ":" + baseAmount;
+    }
+
 }

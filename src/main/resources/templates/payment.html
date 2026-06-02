@@ -63,11 +63,12 @@
                     </div>
                     <div class="summary-item">
                         <div class="label">标识号</div>
-                        <div class="value">{{ orderInfo.payNum }}</div>
+                        <div class="value" v-if="orderInfo.matchMode==='DECREMENT'" style="color:#22c55e">无需输入</div>
+                        <div class="value" v-else>{{ orderInfo.payNum }}</div>
                     </div>
                     <div class="summary-item">
                         <div class="label">支付金额</div>
-                        <div class="value">￥{{ orderInfo.money }}</div>
+                        <div class="value">￥{{ orderInfo.actualAmount || orderInfo.money }}</div>
                     </div>
                 </div>
                 <div class="qr-wrap">
@@ -82,7 +83,9 @@
                     <a href="recharge.html" class="btn btn-ghost">返回捐赠</a>
                     <a v-if="orderInfo.payType==='alipay' && qrCodeUrl" :href="qrCodeUrl" class="btn btn-primary">打开支付宝（手机点击有效）</a>
                 </div>
-                <div class="tips" v-if="orderInfo.useLocalQrCode==='true'">请在付款备注中输入标识号：{{ orderInfo.payNum }}</div>
+                <div class="tips" v-if="orderInfo.useLocalQrCode==='true' && orderInfo.matchMode==='REMARK' && !orderInfo.fallbackToRemark">请在付款备注中输入标识号：{{ orderInfo.payNum }}</div>
+                <div class="tips" v-if="orderInfo.useLocalQrCode==='true' && orderInfo.matchMode==='DECREMENT'" style="color:#22c55e">请支付 ￥{{ orderInfo.actualAmount }}</div>
+                <div class="tips" v-if="orderInfo.useLocalQrCode==='true' && orderInfo.fallbackToRemark" style="color:#F59E0B">请支付 ￥{{ orderInfo.actualAmount }}，并在备注中输入标识号：{{ orderInfo.payNum }}</div>
             </div>
 
             <div class="glass card" v-if="showInfoPanel">
@@ -180,14 +183,18 @@ createApp({
                 picName: p.get('picName'),
                 qrCode: p.get('qrCode'),
                 payQrNum: p.get('payQrNum'),
-                useLocalQrCode: p.get('useLocalQrCode')
+                useLocalQrCode: p.get('useLocalQrCode'),
+                matchMode: p.get('matchMode') || 'REMARK',
+                actualAmount: p.get('actualAmount') || '',
+                fallbackToRemark: p.get('fallbackToRemark') === 'true'
             };
         },
         async initPayment(){
             this.orderInfo = this.getUrlParams();
             await this.createPaymentOrder();
-            if(this.orderInfo.payType==='wechat'){ this.showWechatNotice = true; }
-            if(this.orderInfo.payType==='wechat_zs'){ this.showWechatZsNotice = true; }
+            // 减额模式无需显示备注提示
+            if(this.orderInfo.payType==='wechat' && this.orderInfo.matchMode !== 'DECREMENT'){ this.showWechatNotice = true; }
+            if(this.orderInfo.payType==='wechat_zs' && this.orderInfo.matchMode !== 'DECREMENT'){ this.showWechatZsNotice = true; }
             await this.waitForQRCode();
             await this.$nextTick();
             await new Promise(r=>setTimeout(r,100));
@@ -204,9 +211,22 @@ createApp({
                 /** 如果是使用本地二维码 */
                 if(this.orderInfo.useLocalQrCode === 'true'){
                     if(this.orderInfo.customerQr === 'true'){
+                        // 自定义金额：使用custom.png
                         this.qrImageUrl = 'assets/qr/${this.orderInfo.payType}/custom.png';
                         return
-                    }else{
+                    }else if(this.orderInfo.fallbackToRemark){
+                        // 槽位已满回退：复用原价二维码，靠备注区分
+                        this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.money}/${this.orderInfo.payQrNum}.png`;
+                        return
+                    } else if(this.orderInfo.matchMode === 'DECREMENT'){
+                        // 减额模式：二维码放在基础金额目录下
+                        if(this.orderInfo.actualAmount === this.orderInfo.money){
+                            this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.money}/${this.orderInfo.payQrNum}.png`;
+                        } else {
+                            this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.money}/${this.orderInfo.actualAmount}/${this.orderInfo.payQrNum}.png`;
+                        }
+                        return
+                    } else {
                         this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.picName}/${this.orderInfo.payQrNum}.png`;
                         return
                     }

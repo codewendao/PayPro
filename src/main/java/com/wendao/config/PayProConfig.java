@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,5 +186,28 @@ public class PayProConfig implements WebMvcConfigurer {
         }
         return payMethods.stream()
                 .collect(Collectors.toMap(PayMethod::getId, PayMethod::isUseLocalQrCode));
+    }
+
+    /**
+     * 减额匹配配置
+     */
+    private Decrement decrement = new Decrement();
+
+    @Data
+    public static class Decrement {
+        /**
+         * 是否启用减额匹配模式
+         */
+        private boolean enabled = false;
+
+        /**
+         * 最大减额槽位数(同一基础价格最多支持多少个并发减额订单)
+         */
+        private int maxCount = 5;
+
+        /**
+         * 每次减额的步长(元)
+         */
+        private BigDecimal step = new BigDecimal("0.01");
     }
 }

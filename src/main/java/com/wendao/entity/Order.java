@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
+ * @author lld
  */
 @TableName("t_order")
 @Data
@@ -61,6 +62,21 @@ public class Order implements Serializable{
     private Integer payQrNum;
 
     /**
+     * 匹配模式: REMARK=备注匹配, DECREMENT=减额匹配
+     */
+    private String matchMode;
+
+    /**
+     * 实际支付金额(减额模式下与money不同, 备注模式下等于money)
+     */
+    private BigDecimal actualAmount;
+
+    /**
+     * 减额槽位索引(0-based, 仅DECREMENT模式使用, REMARK模式为null)
+     */
+    private Integer decrementIndex;
+
+    /**
      * 是否自定义输入
      */
     private Boolean custom;
@@ -83,12 +99,11 @@ public class Order implements Serializable{
     /** 订单来源,PRODUCT来自产品表，OTHER其他 */
     private String orderSource;
 
+    /** 通知地址 */
+    private String notifyUrl;
 
     /** 过期时间 */
     private Date expireTime;
-
-    /** 通知地址 */
-    private String notifyUrl;
 
     @TableField(exist = false)
     private String time;
@@ -117,4 +132,6 @@ public class Order implements Serializable{
     @JsonIgnore
     private String statistic;
 
+    @TableField(exist = false)
+    private String downloadUrl;
 }

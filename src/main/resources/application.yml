@@ -89,6 +89,10 @@ paypro:
     value: 123
     expire: 14
   qrCodeNum: 2
+  decrement:
+    enabled: true
+    maxCount: 2
+    step: 0.01
   openapi:
     secret: your_openapi_secret_key_here
   payMethods:

@@ -33,4 +33,10 @@ public class OpenApiOrderResp implements Serializable {
     private String qrCodeUrl;
 
     private String returnUrl;
+
+    private String matchMode;
+
+    private BigDecimal actualAmount;
+
+    private Boolean fallbackToRemark;
 }

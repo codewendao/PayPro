@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 /**
  * @description:
+ * @author: lld
  * @version: 1.0
  */
 @Data
@@ -37,4 +38,22 @@ public class AddOrderResp {
      * 支付二维码标识
      */
     private Integer payQrNum;
+
+    /**
+     * 匹配模式: REMARK=备注匹配, DECREMENT=减额匹配
+     */
+    @ApiModelProperty(value = "匹配模式")
+    private String matchMode;
+
+    /**
+     * 实际支付金额
+     */
+    @ApiModelProperty(value = "实际支付金额")
+    private BigDecimal actualAmount;
+
+    /**
+     * 是否槽位已满(回退到备注模式)
+     */
+    @ApiModelProperty(value = "是否槽位已满(回退到备注模式)")
+    private Boolean fallbackToRemark;
 }

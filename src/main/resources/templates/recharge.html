@@ -572,7 +572,7 @@ createApp({
                     this.showSuccess('已提交，正在跳转');
                     const that = this;
                     setTimeout(()=>{
-                        const url = `payment.html?orderId=${resp.data.id}&money=${resp.data.money}&payType=${resp.data.payType}&payNum=${resp.data.payNum}&customerQr=${resp.data.custom}&picName=${encodeURIComponent((resp.data.money||0).toFixed(2))}&qrCode=${resp.data.qrCode}&payQrNum=${resp.data.payQrNum}&useLocalQrCode=${that.useLocalQrCode}`;
+                        const url = `payment.html?orderId=${resp.data.id}&money=${(resp.data.money||0).toFixed(2)}&payType=${resp.data.payType}&payNum=${resp.data.payNum||''}&customerQr=${resp.data.custom}&picName=${encodeURIComponent((resp.data.money||0).toFixed(2))}&qrCode=${resp.data.qrCode}&payQrNum=${resp.data.payQrNum}&useLocalQrCode=${that.useLocalQrCode}&matchMode=${encodeURIComponent(resp.data.matchMode||'REMARK')}&actualAmount=${(resp.data.actualAmount||resp.data.money||0).toFixed(2)}&fallbackToRemark=${resp.data.fallbackToRemark||false}`;
                         window.location.href = url;
                     },800);
                 } else {
