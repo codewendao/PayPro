@@ -215,8 +215,8 @@ createApp({
                         this.qrImageUrl = 'assets/qr/${this.orderInfo.payType}/custom.png';
                         return
                     }else if(this.orderInfo.fallbackToRemark){
-                        // 槽位已满回退：复用原价二维码，靠备注区分
-                        this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.money}/${this.orderInfo.payQrNum}.png`;
+                        // 槽位已满回退：金额+0.01区分，如5.01放在5.00目录下
+                        this.qrImageUrl = `assets/qr/${this.orderInfo.payType}/${this.orderInfo.money}/${this.orderInfo.actualAmount}/${this.orderInfo.payQrNum}.png`;
                         return
                     } else if(this.orderInfo.matchMode === 'DECREMENT'){
                         // 减额模式：二维码放在基础金额目录下

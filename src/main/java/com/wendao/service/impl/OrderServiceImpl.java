@@ -467,9 +467,9 @@ public class OrderServiceImpl implements OrderService {
             }
             req.setCustom(false);
         } else if (fallbackToRemark) {
-            // 回退模式: 复用原价二维码，靠备注区分
+            // 回退模式: 金额+0.01区分，如5.01放在5.00目录下
             qrUrl = payProConfig.getSite() + "/assets/qr/" + req.getPayType() + "/" +
-                    formattedAmount + "/" + i + ".png";
+                    formattedAmount + "/" + actualFormattedAmount + "/" + i + ".png";
             req.setCustom(true);
         } else {
             boolean b = checkQrFileExists(req.getPayType(), req.getAmount(), i);
