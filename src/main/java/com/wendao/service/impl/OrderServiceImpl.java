@@ -658,8 +658,8 @@ public class OrderServiceImpl implements OrderService {
         DecrementSlotResult result = new DecrementSlotResult();
         result.setSuccess(true);
         result.setFallbackToRemark(true);
-        // 回退使用原价，靠备注区分
-        result.setActualAmount(baseAmount);
+        // 回退金额 = 基础金额 + step，用不同金额区分
+        result.setActualAmount(baseAmount.add(step));
         return result;
     }
 
