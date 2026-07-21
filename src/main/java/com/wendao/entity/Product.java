@@ -43,4 +43,7 @@ public class Product implements Serializable{
     @TableLogic(delval = "1",value = "0")
     private Integer del;
 
+    /** 支付成功后邮件发送的下载链接（仅后端使用，公开接口不会返回） */
+    private String downloadUrl;
+
 }

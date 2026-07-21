@@ -74,3 +74,8 @@ CREATE INDEX `idx_actual_amount_state`
 -- 备注匹配查询索引(性能优化)
 CREATE INDEX `idx_pay_num_create_time`
     ON `t_order` (`pay_num`, `create_time`);
+
+ALTER TABLE `t_product`
+    ADD COLUMN `download_url` VARCHAR(500) NULL DEFAULT NULL
+        COMMENT '支付成功后邮件发送的下载链接（仅后端使用）'
+        AFTER `item_info`;

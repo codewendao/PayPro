@@ -24,6 +24,8 @@ public class ProductServiceImpl implements ProductService {
     public ResponseVO<Product> get(Integer productId) {
         Product product = productMapper.selectById(productId);
         if(product != null){
+            // 脱敏：公开接口不返回下载链接
+            product.setDownloadUrl(null);
             return ResponseVO.successResponse(product);
         }
         return ResponseVO.errorResponse("获取产品失败");
@@ -33,6 +35,9 @@ public class ProductServiceImpl implements ProductService {
     public ResponseVO<List<Product>> getListByType(GetProductListReq req) {
         QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
         productQueryWrapper.lambda().in(Product::getType,req.getTypes());
-        return ResponseVO.successResponse(productMapper.selectList(productQueryWrapper));
+        List<Product> products = productMapper.selectList(productQueryWrapper);
+        // 脱敏：公开接口不返回下载链接
+        products.forEach(p -> p.setDownloadUrl(null));
+        return ResponseVO.successResponse(products);
     }
 }
