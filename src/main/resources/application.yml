@@ -1,12 +1,12 @@
 server:
-  port: 8889
+  port: ${SERVER_PORT:8889}
 
 spring:
   profiles:
     active: local
   mail:
     host: smtp.163.com #邮箱服务器
-    password: xxxx #邮箱密码
+    password: ${MAIL_PASSWORD:xxxx} # 请确保此为正确的授权码
     port: 25
     properties:
       mail:
@@ -35,26 +35,25 @@ spring:
     maxWait: 60000
     minEvictableIdleTimeMillis: 300000
     minIdle: 5
-    password: xxxxx
+    password: ${DB_PASSWORD:Frfr46467979+}
     poolPreparedStatements: true
     testOnBorrow: false
     testOnReturn: false
     testWhileIdle: true
     timeBetweenEvictionRunsMillis: 60000
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://127.0.0.1:8001/paypro?useSSL=false&characterEncoding=utf-8
-    username: root
+    url: ${DB_URL:jdbc:mysql://81.71.9.142:27887/pay-test?useSSL=false&characterEncoding=utf-8&serverTimezone=GMT%2B8}
+    username: ${DB_USERNAME:root}
     validationQuery: SELECT 1 FROM DUAL
   redis:
-    database: 1
-    host: 127.0.0.1
-    password:
+    database: ${REDIS_DB:1}
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
     pool:
       max-active: -1
       max-idle: 8
       max-wait: -1
       min-idle: 0
-    port: 6379
     timeout: 10000
 
 mybatis-plus:
@@ -77,11 +76,12 @@ paypro:
   indexTitle: PayPro个人收款系统 # 网站首页标题
   name: codewendao # 支付宝免备注昵称
   title: PayPro个人收款系统 # 邮件标题
-  site: http://localhost:8889 # 生成邮件里操作的url地址和支付宝免备注需要
+  site: ${SITE_URL:http://localhost:8889} # 生成邮件里操作的url地址和支付宝免备注需要
+  qr-dir: /app/appsystems/qr
   mobile: xxxxxx # 支付宝免备注需要，填写你支付宝的手机号
   email:
-    receiver: 958625993@qq.com
-    sender: codewendao@163.com
+    receiver: xxxx@qq.com
+    sender: xxxx@163.com
   rateLimit:
     # 防炸库缓存验证(分钟)
     ipExpire: 2

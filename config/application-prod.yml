@@ -1,0 +1,95 @@
+# ==========================================
+# PayPro 生产环境配置
+# 请根据实际情况修改下方配置后执行 ./install.sh
+# ==========================================
+
+paypro:
+  # ---- 必改项 ----
+  # 站点访问地址（改为你的域名或服务器IP）
+  site: http://localhost:8889
+
+  # ---- 支付宝配置 ----
+  # 支付宝用户ID（用于收款）改成你自己的
+  alipayUserId: xxxx
+  # 支付宝自定义收款码链接 改成你自己的
+  alipayCustomQrUrl: https://qr.alipay.com/fkx17492eze99maemka1u81
+
+  # ---- 站点信息 ----
+  # 网站标题（浏览器标签栏） 可改可不改
+  title: PayPro个人收款系统
+  # 首页标题 可改可不改
+  indexTitle: PayPro个人收款系统
+  # 收款人姓名 改成你自己的
+  name: codewendao
+  # 联系电话 可改可不改
+  mobile: 'xxxxxx'
+
+  # ---- 邮箱配置 ----
+  email:
+    # 接收通知的邮箱 改成你自己的
+    receiver: xxxx@qq.com
+    # 发件邮箱 改成你自己的
+    sender: xxxx@qq.com
+  # 支持邮箱（页面展示） 改成你自己的
+  supportMail: xxxx@163.com
+
+  # ---- 限流配置 ----
+  rateLimit:
+    # IP访问间隔（分钟），防刷
+    ipExpire: 1
+
+  # ---- Token配置 ----
+  token:
+    # 加密密钥（务必修改为随机字符串）
+    value: 123
+    # Token过期天数
+    expire: 14
+
+  # ---- 开放API配置 ----
+  openapi:
+    # OPEN API签名密钥（务必修改）
+    secret: your_openapi_secret_key_here
+
+  # ---- 二维码配置 ----
+  # 每个金额的二维码数量
+  qrCodeNum: 2
+
+  # ---- 减额匹配配置 ----
+  decrement:
+    # 是否启用减额匹配模式
+    enabled: true
+    # 最大减额槽位数 可改可不改
+    maxCount: 2
+    # 减额步长（元）可改可不改,改了要对应二维码金额
+    step: 0.01
+
+  # ---- 支付方式(一般不需要调整) ----
+  payMethods:
+    - id: 'alipay'
+      name: '支付宝支付'
+      description: '免输备注，手动收款'
+      icon: '🔵'
+      status: true
+      allow-night: false
+      use-local-qr-code: false
+    - id: 'wechat'
+      name: '微信支付'
+      description: '需备注，自动确认收款'
+      icon: '🟢'
+      status: true
+      allow-night: true
+      use-local-qr-code: true
+    - id: 'wechat_zs'
+      name: '微信赞赏码支付'
+      description: '需备注，自动确认收款'
+      icon: '🟢'
+      status: true
+      allow-night: false
+      use-local-qr-code: true
+    - id: 'alipay_dmf'
+      name: '支付宝当面付'
+      description: '支付宝官方产品，无需营业执照，免备注自动收款'
+      icon: '🔵'
+      status: true
+      allow-night: true
+      use-local-qr-code: false

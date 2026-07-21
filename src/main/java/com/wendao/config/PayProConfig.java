@@ -107,6 +107,12 @@ public class PayProConfig implements WebMvcConfigurer {
     private List<PayMethod> payMethods;
 
     /**
+     * 二维码外部存储目录（绝对路径，如 /app/appsystems/qr）。
+     * 留空则使用 classpath 下的 static/assets/qr/，兼容现有打包方式。
+     */
+    private String qrDir;
+
+    /**
      * 邮箱配置内部类
      */
     @Data
@@ -209,5 +215,14 @@ public class PayProConfig implements WebMvcConfigurer {
          * 每次减额的步长(元)
          */
         private BigDecimal step = new BigDecimal("0.01");
+    }
+
+    @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        if (org.springframework.util.StringUtils.hasText(qrDir)) {
+            String location = qrDir.endsWith("/") ? "file:" + qrDir : "file:" + qrDir + "/";
+            registry.addResourceHandler("/assets/qr/**")
+                    .addResourceLocations(location, "classpath:/static/assets/qr/");
+        }
     }
 }

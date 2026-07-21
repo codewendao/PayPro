@@ -1,0 +1,86 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: pay-mysql
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: pay
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./src/main/resources/sql/pay.sql:/docker-entrypoint-initdb.d/01-pay.sql
+      - mysql-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pay-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: pay-redis
+    restart: always
+    command: redis-server --requirepass payredis123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "payredis123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pay-network
+
+  pay:
+    build: .
+    image: pay:latest
+    container_name: pay
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      SERVER_PORT: 8889
+      SPRING_PROFILES: prod
+      # 数据库（连 docker-compose 内的 mysql 服务）
+      DB_URL: jdbc:mysql://mysql:3306/pay?useSSL=false&characterEncoding=utf-8&serverTimezone=GMT%2B8
+      DB_USERNAME: root
+      DB_PASSWORD: root123
+      # Redis（连 docker-compose 内的 redis 服务）
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: payredis123
+      REDIS_DB: 1
+      # 站点 URL
+      SITE_URL: http://localhost:8889
+      # 邮箱授权码（可选覆盖）
+      # MAIL_PASSWORD: your-mail-auth-code
+    ports:
+      - "8889:8889"
+    volumes:
+      - ./config:/app/appsystems/config
+      - ./qr:/app/appsystems/qr
+      - ./applogs:/app/applogs
+      - ./dump:/app/applogs/dump
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pay-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  pay-network:
+    driver: bridge

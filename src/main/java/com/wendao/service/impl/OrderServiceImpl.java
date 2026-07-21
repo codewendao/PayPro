@@ -538,13 +538,27 @@ public class OrderServiceImpl implements OrderService {
     private boolean checkQrFileExists(String payType, BigDecimal amount, int qrNum) {
         // 格式化金额为两位小数，与文件夹名称一致
         String amountStr = String.format("%.2f", amount);
-        // 构建文件路径：static/qr/{payType}/{amount}/{qrNum}.png
-        String filePath = "classpath:static/qr/" + payType.toLowerCase() + "/" + amountStr + "/" + qrNum + ".png";
+        String relativePath = payType.toLowerCase() + "/" + amountStr + "/" + qrNum + ".png";
+
+        // 优先检查外部目录
+        String qrDir = payProConfig.getQrDir();
+        if (org.springframework.util.StringUtils.hasText(qrDir)) {
+            String externalPath = qrDir.endsWith("/") ? qrDir + relativePath : qrDir + "/" + relativePath;
+            try {
+                if (resourceLoader.getResource("file:" + externalPath).exists()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // ignore, try classpath fallback
+            }
+        }
+
+        // classpath 回退（修复原 bug：static/qr -> static/assets/qr）
+        String classpathPath = "classpath:static/assets/qr/" + relativePath;
         try {
-            Resource resource = resourceLoader.getResource(filePath);
+            Resource resource = resourceLoader.getResource(classpathPath);
             return resource.exists();
         } catch (Exception e) {
-            // 记录日志或处理异常
             return false;
         }
     }
