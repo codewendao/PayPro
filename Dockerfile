@@ -1,6 +1,7 @@
 # ---- Build Stage: Maven 构建 ----
 FROM maven:3.6.3-jdk-8 AS builder
 WORKDIR /build
+COPY settings.xml /root/.m2/settings.xml
 COPY pom.xml .
 COPY src ./src
 RUN mvn package -DskipTests -B -q

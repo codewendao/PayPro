@@ -43,6 +43,8 @@ if docker compose version &> /dev/null; then
     log_info "Docker Compose 已可用"
 elif [ -f "$SCRIPT_DIR/docker-compose" ]; then
     log_info "安装项目自带的 Docker Compose..."
+
+    # 尝试安装为 Docker CLI 插件（Docker 23+）
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
     cp "$SCRIPT_DIR/docker-compose" $DOCKER_CONFIG/cli-plugins/docker-compose
@@ -51,12 +53,27 @@ elif [ -f "$SCRIPT_DIR/docker-compose" ]; then
     if docker compose version &> /dev/null; then
         log_info "Docker Compose 安装完成"
     else
-        log_error "安装失败，请参考 一键启动说明.md 手动安装"
-        exit 1
+        # 降级：安装为独立 docker-compose（兼容 Docker 20.x）
+        log_info "Docker 版本较旧，安装为独立 docker-compose..."
+        cp "$SCRIPT_DIR/docker-compose" /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        if docker-compose --version &> /dev/null; then
+            log_info "docker-compose 安装完成"
+        else
+            log_error "安装失败，请参考 一键启动说明.md 手动安装"
+            exit 1
+        fi
     fi
 else
     log_error "未找到项目自带的 docker-compose 文件"
     exit 1
+fi
+
+# 确定使用的命令
+if docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
 fi
 
 # 3. 创建运行目录
@@ -87,7 +104,7 @@ log_info "配置文件已就绪: config/application-prod.yml"
 
 # 5. 启动
 log_info "启动项目（首次需构建镜像，约 3-5 分钟）..."
-if ! docker compose up -d --build; then
+if ! $COMPOSE_CMD up -d --build; then
     echo ""
     log_error "启动失败！常见原因："
     echo "  1. Docker Hub 连接超时（国内服务器），需配置镜像加速:"
@@ -101,7 +118,7 @@ fi
 echo ""
 echo "========================================="
 echo "  PayPro 部署成功！"
-echo "  访问: http://$(ip route get 1 2>/dev/null | awk '{print $7; exit}' || hostname -I 2>/dev/null | awk '{print $1}' || echo 'localhost'):8889"
+echo "  访问: http://IP:8889"
 echo "========================================="
 echo ""
 echo "常用命令:"
