@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,6 +196,11 @@ public class PayProConfig implements WebMvcConfigurer {
     }
 
     /**
+     * 产品列表（从 YAML 配置文件读取）
+     */
+    private List<ProductConfig> products;
+
+    /**
      * 减额匹配配置
      */
     private Decrement decrement = new Decrement();
@@ -215,6 +221,43 @@ public class PayProConfig implements WebMvcConfigurer {
          * 每次减额的步长(元)
          */
         private BigDecimal step = new BigDecimal("0.01");
+    }
+
+    /**
+     * 产品配置内部类（对应 YAML 中 paypro.products 列表的每一项）
+     */
+    @Data
+    public static class ProductConfig {
+        private Integer id;
+        private String productName;
+        private BigDecimal money;
+        private String description;
+        private String extend;
+        private String type;
+        private String downloadUrl;
+    }
+
+    /**
+     * 根据 ID 从配置中查找产品
+     * @return 产品配置，未找到返回 null
+     */
+    public ProductConfig getProductConfigById(Integer id) {
+        if (products == null) return null;
+        return products.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 根据类型列表从配置中筛选产品
+     * @return 匹配的产品列表，无匹配返回空列表
+     */
+    public List<ProductConfig> getProductConfigsByTypes(List<String> types) {
+        if (products == null || types == null) return Collections.emptyList();
+        return products.stream()
+                .filter(p -> types.contains(p.getType()))
+                .collect(Collectors.toList());
     }
 
     @Override

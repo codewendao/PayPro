@@ -5,7 +5,7 @@ import com.wendao.config.PayProConfig;
 import com.wendao.entity.Order;
 import com.wendao.exception.ApiException;
 import com.wendao.mapper.OrderMapper;
-import com.wendao.mapper.ProductMapper;
+import com.wendao.service.ProductService;
 import com.wendao.enums.OrderStatesEnum;
 import com.wendao.model.req.GetOrderListReq;
 import com.wendao.model.req.OpenApiOrderReq;
@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
     private EmailUtils emailUtils;
 
     @Autowired
-    ProductMapper productMapper;
+    ProductService productService;
 
     @Autowired
     Snowflake snowflake;
@@ -289,8 +289,8 @@ public class OrderServiceImpl implements OrderService {
         //Pay pay = thisService.changePayState(id, 1);
         Order pay = orderMapper.selectById(id);
         if (pay.getOrderSource().equals("PRODUCT") && pay.getProductId() != null) {
-            Product product = productMapper.selectById(pay.getProductId());
-            if (product.getType().equals("CODE")) {
+            Product product = productService.getProductById(pay.getProductId() != null ? pay.getProductId().intValue() : null);
+            if (product != null && "CODE".equals(product.getType())) {
                 emailUtils.sendTemplateMail(payProConfig.getEmail().getSender(), pay.getEmail(), "【Pay个人收款支付系统】支付成功通知（附下载链接）",
                         "order-success", pay);
                 pay.setState(OrderStatesEnum.SUCCESS_PAY.getState());

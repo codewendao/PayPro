@@ -1,25 +1,19 @@
 package com.wendao.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
+ * 产品实体（从 YAML 配置文件读取，非数据库表）
  */
 @Data
-@TableName("t_product")
-public class Product implements Serializable{
+public class Product implements Serializable {
 
     /**
      * 唯一标识
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private String productName;
@@ -31,17 +25,10 @@ public class Product implements Serializable{
      */
     private String description;
 
-    private Date createTime;
-
-    private Date updateTime;
-
     private String extend;
 
-    /** 产品类型 GAME CODE*/
+    /** 产品类型 GAME CODE */
     private String type;
-
-    @TableLogic(delval = "1",value = "0")
-    private Integer del;
 
     /** 支付成功后邮件发送的下载链接（仅后端使用，公开接口不会返回） */
     private String downloadUrl;

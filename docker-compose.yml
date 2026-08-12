@@ -16,10 +16,11 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_general_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysql", "-uroot", "-proot123", "pay", "-e", "SELECT 1 FROM t_order LIMIT 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 60s
     networks:
       - pay-network
 
@@ -59,7 +60,6 @@ services:
       REDIS_PASSWORD: payredis123
       REDIS_DB: 1
       # 站点 URL
-      SITE_URL: http://localhost:8889
       # 邮箱授权码（可选覆盖）
       # MAIL_PASSWORD: your-mail-auth-code
     ports:

@@ -3,6 +3,23 @@
 # 请根据实际情况修改下方配置后执行 ./install.sh
 # ==========================================
 
+# ---- Spring Mail 邮件发送配置（必改） ----
+spring:
+  mail:
+    host: smtp.163.com                       # SMTP 服务器地址
+    port: 25                                  # SMTP 端口（25/465/587）
+    username: xxxx@163.com              # 发件邮箱账号
+    password: ${MAIL_PASSWORD:your-mail-auth-code}   # 邮箱授权码（非登录密码）
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: "smtp.163.com"
+
 paypro:
   # ---- 必改项 ----
   # 站点访问地址（改为你的域名或服务器IP）
@@ -41,7 +58,7 @@ paypro:
   # ---- Token配置 ----
   token:
     # 加密密钥（务必修改为随机字符串）
-    value: 123
+    value: 1
     # Token过期天数
     expire: 14
 
@@ -62,6 +79,25 @@ paypro:
     maxCount: 2
     # 减额步长（元）可改可不改,改了要对应二维码金额
     step: 0.01
+
+  # ---- 产品配置 ----
+  # 所有产品在此定义，修改后重启生效
+  products:
+    - id: 1
+      product-name: "实例产品,演示效果"
+      money: "5.00"
+      description: ""
+      type: "CODE"
+      extend: ""
+      download-url: "https://www.baidu.com"
+    # 更多产品模板：
+    # - id: 2
+    #   product-name: "游戏礼包"
+    #   money: "10.00"
+    #   description: "包含100金币+10钻石"
+    #   type: "GAME"
+    #   extend: ""
+    #   download-url: ""
 
   # ---- 支付方式(一般不需要调整) ----
   payMethods:

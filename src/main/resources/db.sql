@@ -28,28 +28,9 @@ CREATE TABLE `t_order`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for t_product
--- ----------------------------
-DROP TABLE IF EXISTS `t_product`;
-CREATE TABLE `t_product`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime NULL DEFAULT NULL,
-  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
-  `money` decimal(19, 2) NULL DEFAULT NULL COMMENT '金额',
-  `product_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '产品名称',
-  `update_time` datetime NULL DEFAULT NULL,
-  `item_info` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '具体的物品配置JSON格式{gold:1,diamound:1,itemList:[]} 金币 钻石 物品配置',
-  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '产品类型：GAME CODE',
-  `extend` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '拓展信息',
-  `del` int(11) NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
 SET FOREIGN_KEY_CHECKS = 1;
 
 
-INSERT INTO `t_product` (`id`, `create_time`, `description`, `money`, `product_name`, `update_time`, `item_info`, `type`, `extend`, `del`) VALUES (9, NULL, '项目源码，请关注微信公众号：代码问道获取 ！', 1.00, '本项目源码，关注公众号：代码问道 获取', NULL, NULL, 'CODE', NULL, 0);
 
 
 
@@ -74,8 +55,3 @@ CREATE INDEX `idx_actual_amount_state`
 -- 备注匹配查询索引(性能优化)
 CREATE INDEX `idx_pay_num_create_time`
     ON `t_order` (`pay_num`, `create_time`);
-
-ALTER TABLE `t_product`
-    ADD COLUMN `download_url` VARCHAR(500) NULL DEFAULT NULL
-        COMMENT '支付成功后邮件发送的下载链接（仅后端使用）'
-        AFTER `item_info`;

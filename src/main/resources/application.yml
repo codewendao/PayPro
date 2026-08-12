@@ -95,6 +95,15 @@ paypro:
     step: 0.01
   openapi:
     secret: your_openapi_secret_key_here
+  products:
+    - id: 1
+      product-name: "实例产品,演示效果"
+      money: "5.00"
+      description: ""
+      type: "CODE"
+      extend: ""
+      download-url: "https://www.baidu.com"
+
   payMethods:
     - id: 'alipay'
       name: '支付宝支付'
