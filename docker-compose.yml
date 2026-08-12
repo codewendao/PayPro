@@ -10,17 +10,17 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./src/main/resources/sql/pay.sql:/docker-entrypoint-initdb.d/01-pay.sql
+      - ./src/main/resources/sql:/docker-entrypoint-initdb.d
       - mysql-data:/var/lib/mysql
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_general_ci
     healthcheck:
-      test: ["CMD", "mysql", "-uroot", "-proot123", "pay", "-e", "SELECT 1 FROM t_order LIMIT 1"]
-      interval: 10s
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot123"]
+      interval: 5s
       timeout: 5s
-      retries: 20
-      start_period: 60s
+      retries: 10
+      start_period: 40s
     networks:
       - pay-network
 
@@ -59,6 +59,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: payredis123
       REDIS_DB: 1
+      SPRING_REDIS_PASSWORD: payredis123
       # 站点 URL
       SITE_URL: http://localhost:8889
       # 邮箱授权码（可选覆盖）
