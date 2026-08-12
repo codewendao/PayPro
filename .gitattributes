@@ -3,4 +3,5 @@
 *.yaml text eol=lf
 *.md text eol=lf
 Dockerfile text eol=lf
-docker-compose text eol=lf
+docker-compose.yml text eol=lf
+docker-compose binary
