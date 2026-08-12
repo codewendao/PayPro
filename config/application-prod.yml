@@ -8,8 +8,8 @@ spring:
   mail:
     host: smtp.163.com                       # SMTP 服务器地址
     port: 25                                  # SMTP 端口（25/465/587）
-    username: xxxx@163.com              # 发件邮箱账号
-    password: ${MAIL_PASSWORD:your-mail-auth-code}   # 邮箱授权码（非登录密码）
+    username: frfr46467978@163.com              # 发件邮箱账号
+    password: ${MAIL_PASSWORD:EZf7cdkH4C8mPFfP}   # 邮箱授权码（非登录密码）
     properties:
       mail:
         smtp:
@@ -23,7 +23,7 @@ spring:
 paypro:
   # ---- 必改项 ----
   # 站点访问地址（改为你的域名或服务器IP）
-  site: http://localhost:8889
+  site: http://1.14.150.235:8889
 
   # ---- 支付宝配置 ----
   # 支付宝用户ID（用于收款）改成你自己的
@@ -44,11 +44,11 @@ paypro:
   # ---- 邮箱配置 ----
   email:
     # 接收通知的邮箱 改成你自己的
-    receiver: xxxx@qq.com
+    receiver: frfr46467979@qq.com
     # 发件邮箱 改成你自己的
-    sender: xxxx@qq.com
+    sender: frfr46467978@qq.com
   # 支持邮箱（页面展示） 改成你自己的
-  supportMail: xxxx@163.com
+  supportMail: frfr46467978@163.com
 
   # ---- 限流配置 ----
   rateLimit:
